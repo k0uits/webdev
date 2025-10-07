@@ -26,3 +26,12 @@ Sécurité (TP4)
 - Hash du mot de passe avec `bcrypt` (pre-save Mongoose)
 - Génération & vérification de JWT via `jsonwebtoken`
 - Middleware d'auth (`src/middleware/authMiddleware.ts`) pour protéger les routes
+
+IMPORTANT
+- Pour tester la connection entre le front end et le back end en ligne, coller ca dans la console du localhost du front end:
+
+fetch("http://localhost:3000/health")
+    .then(res => res.json())
+    .then(console.log)
+
+N'oubliez pas de lancer les deux serveurs avant
