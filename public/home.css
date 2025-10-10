@@ -1,0 +1,134 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #335F8A 0%, #2F4558 100%);
+    min-height: 100vh;
+}
+
+.ribbon-header {
+  position: sticky;
+  top: 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 22px;
+  background: linear-gradient(135deg, #335F8A 0%, #2F4558 100%);
+  color: #fff;
+  z-index: 20;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.2);
+}
+
+.ribbon-header .brand {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: .5px;
+  color: #55D5E0;
+}
+
+.ribbon-header .header-login {
+  padding: 10px 18px;
+  font-size: 16px;
+  border-radius: 10px;
+}
+
+.btn-login {
+    width: 100%;
+    padding: 15px;
+    background: linear-gradient(135deg, #F6B12D 0%, #F26619 100%);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-decoration: none;
+}
+
+.btn-login:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(242, 102, 25, 0.3);
+}
+
+.btn-login:active {
+    transform: translateY(0);
+}
+
+.home-wrap {
+  min-height: calc(100vh - 60px);
+  display: grid;
+  place-items: center;
+  padding: 40px 20px;
+}
+
+.carousel-ribbon {
+  width: min(1100px, 95vw);
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  padding: 26px 0;
+  overflow: hidden;
+  position: relative;
+}
+
+.marquee {
+  display: flex;
+  gap: 0;
+  width: 200%;
+}
+
+.track {
+  display: flex;
+  align-items: stretch;
+  gap: 22px;
+  padding: 0 22px;
+  min-width: 100%;
+  animation: slide-left 22s linear infinite;
+}
+
+@media (max-width: 600px) {
+  .track { animation-duration: 28s; }
+}
+
+.quiz-card {
+  width: 180px;
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.thumb {
+  width: 180px; 
+  height: 180px;
+  background: #e5e7eb;
+  border-radius: 14px;
+  border: 2px dashed #cbd5e1;
+}
+
+.title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #2F4558;
+  text-align: center;
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@keyframes slide-left {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-100%); }
+}

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz - Connexion</title>
+    <link rel="stylesheet" href="/login.css">
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="close-btn">&times;</a>
+
+        <h1>Page de Quiz</h1>
+        <p class="subtitle">Connectez-vous pour commencer</p>
+        
+        <form action="/api/auth/login" method="POST">
+            <div class="form-group">
+                <label for="nom">Nom d'utilisateur</label>
+                <input 
+                    type="text" 
+                    id="nom" 
+                    name="nom" 
+                    placeholder="Entrez votre nom"
+                    autocomplete="username"
+                    required
+                >
+            </div>
+            
+            <div class="form-group">
+                <label for="mdp">Mot de passe</label>
+                <input 
+                    type="password" 
+                    id="mdp" 
+                    name="mdp" 
+                    placeholder="Entrez votre mot de passe"
+                    autocomplete="current-password"
+                    required
+                >
+            </div>
+            
+            <button type="submit" class="btn-login">Se connecter</button>
+            <a href="/register" class="btn-create-account">Créer un compte</a>
+            <a href="/reset-password" class="forgot-password">Mot de passe oublié ?</a>
+        </form>
+    </div>
+</body>
+</html>
