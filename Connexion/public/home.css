@@ -1,0 +1,220 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --c1: #55D5E0;
+    --c2: #335F8A;
+    --c3: #2F4558;
+    --c4: #F6B12D;
+    --c5: #F26619;
+}
+
+html,
+body {
+    height: 100%;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, var(--c2) 0%, var(--c3) 100%);
+    display: flex;
+}
+
+.side-nav {
+    width: 240px;
+    min-width: 240px;
+    height: 100%;
+    background: linear-gradient(180deg, var(--c3) 0%, var(--c2) 100%);
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    padding: 24px 16px;
+    box-shadow: 8px 0 24px rgba(0, 0, 0, 0.25);
+    gap: 60px;
+}
+
+.logo {
+    font-weight: 800;
+    font-size: 22px;
+    letter-spacing: 0.5px;
+    color: var(--c1);
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.side-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 6px;
+}
+
+.side-link {
+    display: block;
+    padding: 12px 14px;
+    border-radius: 12px;
+    color: #fff;
+    text-decoration: none;
+    transition: transform 0.15s ease, background 0.2s ease;
+}
+
+.side-link:hover {
+    transform: translateX(4px);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.side-link.active {
+    background: rgba(255, 255, 255, 0.12);
+}
+
+.side-link.create {
+    background: linear-gradient(135deg, var(--c1) 0%, var(--c2) 100%);
+    font-weight: 700;
+    text-align: center;
+    color: white;
+    margin-top: 12px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.side-link.create:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(85, 213, 224, 0.3);
+    filter: brightness(1.1);
+}
+
+.side-footer {
+    margin-top: auto;
+    margin-bottom: 20px;
+}
+
+.btn-side-login {
+    display: block;
+    text-align: center;
+    padding: 12px 14px;
+    border-radius: 12px;
+    text-decoration: none;
+    color: #fff;
+    background: linear-gradient(135deg, var(--c4) 0%, var(--c5) 100%);
+    font-weight: 700;
+    transition: transform 0.15s ease, box-shadow 0.2s ease;
+}
+
+.btn-side-login:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(242, 102, 25, 0.3);
+    filter: brightness(1.1);
+}
+
+.main {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 14px 18px 24px;
+}
+
+.carousel-ribbon {
+    width: 100%;
+    background: #ffffff;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    padding: 16px 0;
+    overflow: hidden;
+    margin-top: 80px;
+}
+
+.marquee {
+    display: flex;
+    width: 200%;
+}
+
+.track {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    gap: 22px;
+    min-width: 70%;
+    padding: 0 22px;
+    animation: slide-left 20s linear infinite;
+}
+
+.quiz-card {
+    width: 200px;
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.thumb {
+    width: 200px;
+    height: 200px;
+    background: #e5e7eb;
+    border-radius: 16px;
+    border: 2px dashed #cbd5e1;
+}
+
+.title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--c3);
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+}
+
+@keyframes slide-left {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(-100%);
+    }
+}
+
+@media (max-width: 900px) {
+    .side-nav {
+        width: 200px;
+        min-width: 200px;
+    }
+
+    .quiz-card {
+        width: 160px;
+    }
+
+    .thumb {
+        width: 160px;
+        height: 160px;
+    }
+
+    .track {
+        animation-duration: 24s;
+    }
+}
+
+@media (max-width: 600px) {
+    body {
+        display: block;
+    }
+
+    .side-nav {
+        position: fixed;
+        transform: translateX(-100%);
+        transition: transform 0.25s ease;
+    }
+
+    .main {
+        padding: 12px 12px 24px;
+    }
+
+    .carousel-ribbon {
+        border-radius: 16px;
+    }
+}
