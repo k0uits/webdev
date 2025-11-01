@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Profil utilisateur</title>
+    <link rel="stylesheet" href="/home.css" />
+    <style>
+        body {
+            background: #2b4a64;
+            font-family: Arial, sans-serif;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 50px;
+        }
+
+        .profile-card {
+            background: #fff;
+            color: #000;
+            border-radius: 12px;
+            padding: 30px 40px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            width: 350px;
+            text-align: center;
+        }
+
+        .profile-card img {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            margin-bottom: 10px;
+        }
+
+        h1 {
+            color: #2b4a64;
+            margin-bottom: 20px;
+        }
+
+        .info {
+            text-align: left;
+            margin: 10px 0;
+        }
+
+        .label {
+            font-weight: bold;
+            color: #2b4a64;
+        }
+
+        .logout {
+            margin-top: 20px;
+            display: inline-block;
+            background: #f33;
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+        }
+
+        .logout:hover {
+            opacity: 0.9;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="profile-card">
+        <img src="/img/user-icon.png" alt="Icône utilisateur">
+        <h1>Profil</h1>
+
+        <% if (user) { %>
+            <div class="info"><span class="label">Nom :</span>
+                <%= user.nom %>
+            </div>
+            <div class="info"><span class="label">Email :</span>
+                <%= user.email %>
+            </div>
+            <div class="info"><span class="label">Rôle :</span>
+                <%= user.role || "user" %>
+            </div>
+            <% } else { %>
+                <p>Vous n’êtes pas connecté.</p>
+                <% } %>
+
+                    <a href="/" class="logout">Retour à l'accueil</a>
+    </div>
+</body>
+
+</html>

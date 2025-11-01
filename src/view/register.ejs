@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>WebQuizzer - Créer un compte</title>
+  <link rel="stylesheet" href="/login.css" />
+</head>
+
+<body>
+  <div class="container">
+    <a href="/" class="close-btn">&times;</a>
+
+    <h1>Page de Quiz</h1>
+    <p class="subtitle">Créez votre compte pour accéder au QCM</p>
+
+    <form id="registerForm">
+      <div class="input-group">
+        <label for="nom">Nom</label>
+        <input type="text" id="nom" name="nom" placeholder="Entrez votre nom" required />
+      </div>
+
+      <div class="input-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" placeholder="Entrez votre email" autocomplete="email" required />
+      </div>
+
+      <div class="input-group">
+        <label for="password">Mot de passe</label>
+        <input type="password" id="password" name="password" placeholder="Entrez votre mot de passe" minlength="6"
+          required />
+      </div>
+
+      <div class="input-group">
+        <label for="passwordConfirm">Répéter le mot de passe</label>
+        <input type="password" id="passwordConfirm" name="passwordConfirm" placeholder="Confirmez le mot de passe"
+          minlength="6" required />
+      </div>
+
+      <button type="submit" class="btn-login">Créer un compte</button>
+
+      <a href="/login" class="btn-create-account">J’ai déjà un compte</a>
+    </form>
+  </div>
+
+  <script>
+    document.getElementById("registerForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const nom = document.getElementById("nom").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+      const passwordConfirm = document.getElementById("passwordConfirm").value;
+
+      const res = await fetch("/users", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nom, email, password, passwordConfirm }),
+      });
+
+      const data = await res.json();
+      if (res.ok && data.ok) {
+        localStorage.setItem("nom", data.user.nom);
+        window.location.href = data.redirect || "/";
+      } else {
+        alert(data.message || (data.errors && data.errors[0]?.msg) || "Erreur lors de l'inscription");
+      }
+    });
+  </script>
+
+
+</body>
+
+</html>

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Créer un quiz</title>
+  <link rel="stylesheet" href="/create.css">
+</head>
+
+<body>
+  <div class="container">
+    <a href="/" class="close-btn">×</a>
+    
+    <h1>Créer un quiz</h1>
+    <p class="subtitle">Configurez votre quiz personnalisé</p>
+
+    <div class="form-group">
+      <input type="text" id="quizId" placeholder="ID du quiz">
+    </div>
+
+    <div class="form-group">
+      <input type="text" id="quizTitle" placeholder="Titre du quiz">
+    </div>
+
+    <button class="btn-add" id="addQ">+ Question</button>
+
+    <div id="questions"></div>
+
+    <button class="btn-submit" id="submit">Enregistrer</button>
+
+    <p id="status"></p>
+  </div>
+
+  <script>
+    (function () {
+      const questionsEl = document.getElementById("questions");
+      const addQBtn = document.getElementById("addQ");
+      const submitBtn = document.getElementById("submit");
+      const statusEl = document.getElementById("status");
+
+      function renderQuestion(qIndex) {
+        const field = document.createElement("fieldset");
+        field.innerHTML = `
+          <legend>Question ${qIndex + 1}</legend>
+          <input type="text" placeholder="id question" data-role="id">
+          <input type="text" placeholder="énoncé" data-role="enonce">
+          <input type="text" placeholder="choix séparés par , (ex: Oui, Non)" data-role="choix">
+          <input type="text" placeholder="id(s) correct(s) (ex: c1 ou c1,c2)" data-role="correction">
+        `;
+        questionsEl.appendChild(field);
+      }
+
+      addQBtn.addEventListener("click", () => renderQuestion(document.querySelectorAll("fieldset").length));
+
+      submitBtn.addEventListener("click", async () => {
+        statusEl.textContent = "";
+        statusEl.className = "";
+        
+        const id = document.getElementById("quizId").value.trim();
+        const titre = document.getElementById("quizTitle").value.trim();
+        const fields = [...document.querySelectorAll("fieldset")];
+
+        const questions = fields.map((f, i) => {
+          const qid = f.querySelector('[data-role="id"]').value.trim() || `q${i + 1}`;
+          const enonce = f.querySelector('[data-role="enonce"]').value.trim();
+          const choix = f.querySelector('[data-role="choix"]').value.split(",").map((t, j) => ({
+            id: `c${j + 1}`,
+            texte: t.trim()
+          })).filter(c => c.texte);
+          const correction = f.querySelector('[data-role="correction"]').value.split(",").map(s => s.trim()).filter(Boolean);
+          return { id: qid, enonce, types: "simple", choisir: choix, correction };
+        });
+
+        try {
+          const resp = await fetch("/quizzes", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id, titre, questions })
+          });
+          const data = await resp.json();
+
+          if (resp.ok) {
+            statusEl.textContent = data.message || "Quiz créé avec succès !";
+            statusEl.className = "success";
+            
+            // Réinitialiser le formulaire
+            document.getElementById("quizId").value = "";
+            document.getElementById("quizTitle").value = "";
+            questionsEl.innerHTML = "";
+          } else {
+            statusEl.textContent = data.message || "Erreur";
+            statusEl.className = "error";
+          }
+        } catch (e) {
+          statusEl.textContent = "Erreur réseau";
+          statusEl.className = "error";
+        }
+      });
+    })();
+  </script>
+
+</body>
+
+</html>

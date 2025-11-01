@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WebQuizzer – Accueil</title>
+  <link rel="stylesheet" href="/home.css" />
+</head>
+
+<body>
+  <aside class="side-nav">
+    <div class="logo">WebQuizzer</div>
+    <nav class="side-menu">
+      <a href="/" class="side-link active">Accueil</a>
+      <a href="#" class="side-link">Tous les quiz</a>
+      <a href="#" class="side-link">Mes quiz</a>
+      <a href="/quizzes/new" class="side-link create">Créer</a>
+      <% if (user && user.role==="admin" ) { %>
+        <a href="/admin" class="side-link create">Admin</a>
+        <% } %>
+          <a href="/profile" class="side-link profile-link">
+            👤 <span>Profil</span>
+          </a>
+
+
+    </nav>
+
+    <div class="side-footer">
+      <p id="welcome"></p>
+      <a href="/login" id="authButton" class="btn-side-login">Connexion</a>
+    </div>
+  </aside>
+
+  <main class="main">
+    <section class="carousel-ribbon">
+      <div class="marquee">
+        <div class="track primary"></div>
+        <div class="track clone" aria-hidden="true"></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- GESTION CONNEXION -->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const nom = localStorage.getItem("nom");
+      const welcome = document.getElementById("welcome");
+      const authBtn = document.getElementById("authButton");
+
+      if (nom) {
+        // --- Affiche le nom et prépare le bouton Déconnexion ---
+        welcome.textContent = `Bonjour ${nom}`;
+        authBtn.textContent = "Déconnexion";
+        authBtn.href = "#";
+
+        authBtn.onclick = async (e) => {
+          e.preventDefault();
+
+          try {
+            // Appel au backend pour détruire la session serveur
+            await fetch("/logout", { method: "GET", credentials: "include" });
+
+            // Supprime le nom du localStorage (client)
+            localStorage.removeItem("nom");
+
+            // Redirige vers la page d'accueil 
+            window.location.href = "/";
+          } catch (err) {
+            console.error("Erreur de déconnexion :", err);
+            alert("Erreur lors de la déconnexion !");
+          }
+        };
+      } else {
+        // --- Si non connecté, affiche "Connexion" ---
+        welcome.textContent = "";
+        authBtn.textContent = "Connexion";
+        authBtn.href = "/login";
+        authBtn.onclick = null;
+      }
+    });
+  </script>
+
+
+  <!-- CHARGEMENT DYNAMIQUE DES QUIZ -->
+  <script>
+    document.addEventListener("DOMContentLoaded", async () => {
+      const TOTAL_CASES = 7;
+      const track1 = document.querySelector(".track.primary");
+      const track2 = document.querySelector(".track.clone");
+      if (!track1) return;
+
+      const createCard = (quiz) => {
+        const card = document.createElement("div");
+        card.className = "quiz-card";
+        card.setAttribute('data-quiz-id', quiz.id);
+        card.innerHTML = `
+          <div class="thumb"></div>
+          <div class="title">${quiz.titre}</div>
+        `;
+
+        card.style.cursor = "pointer";
+        card.addEventListener("click", () => {
+          location.href = "/quizzes/" + encodeURIComponent(quiz.id);
+        });
+
+        const controls = document.createElement("div");
+        controls.className = "card-controls";
+
+        const delBtn = document.createElement("button");
+        delBtn.type = "button";
+        delBtn.className = "btn-delete";
+        delBtn.textContent = "Supprimer";
+        delBtn.addEventListener("click", async (e) => {
+          e.stopPropagation();
+          const ok = confirm("Supprimer ce quiz ?");
+          if (!ok) return;
+
+          try {
+            const resp = await fetch("/quizzes/" + encodeURIComponent(quiz.id), {
+              method: "DELETE",
+              headers: { "Content-Type": "application/json" },
+            });
+
+            if (resp.ok) {
+              card.remove();
+              updateClone();
+            } else {
+              const msg = await resp.json().catch(() => ({}));
+              alert(msg.message || "Suppression impossible");
+            }
+          } catch (err) {
+            console.error("Erreur suppression:", err);
+            alert("Erreur serveur pendant la suppression");
+          }
+        });
+
+        controls.appendChild(delBtn);
+        card.appendChild(controls);
+        return card;
+      };
+
+      const updateClone = () => {
+        if (!track2) return;
+        track2.innerHTML = "";
+
+        track1.childNodes.forEach((node) => {
+          const clone = node.cloneNode(true);
+
+          // Si c'est une carte de quiz, réattacher les événements
+          if (node.classList && node.classList.contains('quiz-card')) {
+            const quizId = node.getAttribute('data-quiz-id');
+            if (quizId) {
+              clone.style.cursor = "pointer";
+              clone.addEventListener("click", () => {
+                location.href = "/quizzes/" + encodeURIComponent(quizId);
+              });
+
+              // Réattacher l'événement du bouton supprimer
+              const delBtn = clone.querySelector('.btn-delete');
+              if (delBtn) {
+                delBtn.addEventListener("click", async (e) => {
+                  e.stopPropagation();
+                  const ok = confirm("Supprimer ce quiz ?");
+                  if (!ok) return;
+
+                  try {
+                    const resp = await fetch("/quizzes/" + encodeURIComponent(quizId), {
+                      method: "DELETE",
+                      headers: { "Content-Type": "application/json" },
+                    });
+
+                    if (resp.ok) {
+                      node.remove();
+                      clone.remove();
+                      updateClone();
+                    } else {
+                      const msg = await resp.json().catch(() => ({}));
+                      alert(msg.message || "Suppression impossible");
+                    }
+                  } catch (err) {
+                    console.error("Erreur suppression:", err);
+                    alert("Erreur serveur pendant la suppression");
+                  }
+                });
+              }
+            }
+          }
+
+          track2.appendChild(clone);
+        });
+      };
+
+      try {
+        const res = await fetch("/quizzes");
+        const quizzes = await res.json();
+
+        track1.innerHTML = "";
+        let i = 0;
+        while (i < quizzes.length && i < TOTAL_CASES) {
+          const q = quizzes[i++];
+          const card = createCard(q);
+          track1.appendChild(card);
+        }
+
+        while (i < TOTAL_CASES) {
+          const placeholder = createCard({ id: "#", titre: "Titre du quiz" });
+          track1.appendChild(placeholder);
+          i++;
+        }
+
+        updateClone();
+      } catch (err) {
+        console.error("Erreur chargement des quiz:", err);
+        const errMsg = document.createElement("div");
+        errMsg.textContent = "Erreur de chargement des quiz.";
+        errMsg.style.color = "red";
+        track1.appendChild(errMsg);
+      }
+    });
+  </script>
+</body>
+
+</html>

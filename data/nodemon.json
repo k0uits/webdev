@@ -1,0 +1,11 @@
+{
+    "watch": [
+        "src"
+    ],
+    "ext": "ts",
+    "ignore": [
+        "data/*.json",
+        "public/*",
+        "src/view/*"
+    ]
+}

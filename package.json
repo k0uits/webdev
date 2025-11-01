@@ -1,0 +1,33 @@
+{
+  "name": "projet-qcm",
+  "version": "1.0.0",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "setup": "npm run install:deps && npm run prepare:folders",
+    "install:deps": "npm install",
+    "prepare:folders": "node -e \"const fs=require('fs'),p=require('path');['data','.cache','public/img'].forEach(d=>{try{fs.mkdirSync(p.join(process.cwd(),d),{recursive:true})}catch{}}); const f=p.join(process.cwd(),'data','users.json'); if(!fs.existsSync(f)) fs.writeFileSync(f,'[]');\"",
+    "dev": "nodemon --watch src --ext ts src/server.ts",
+    "build": "tsc -p .",
+    "start": "node dist/server.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "connect-sqlite3": "^0.9.15",
+    "ejs": "^3.1.10",
+    "express": "^4.21.1",
+    "express-session": "^1.17.3",
+    "express-validator": "^7.0.1"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.2",
+    "@types/ejs": "^3.1.5",
+    "@types/express": "^4.17.21",
+    "@types/express-session": "^1.17.8",
+    "@types/node": "^22.7.4",
+    "@types/express-validator": "^3.0.0",
+    "nodemon": "^3.1.10",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.3"
+  }
+}

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Admin — Utilisateurs</title>
+    <link rel="stylesheet" href="/admin.css" />
+</head>
+
+<body>
+    <div class="admin-wrap">
+        <a class="back" href="/">← Retour à l’accueil</a>
+        <h1>Administration — Utilisateurs</h1>
+
+        <% if (typeof message !=="undefined" && message) { %>
+            <div class="flash">
+                <%= message %>
+            </div>
+            <% } %>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nom</th>
+                            <th>Email</th>
+                            <th>Rôle</th>
+                            <th style="width:200px;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if (Array.isArray(users) && users.length) { %>
+                            <% users.forEach(u=> { %>
+                                <tr>
+                                    <td>
+                                        <%= u.id %>
+                                    </td>
+                                    <td colspan="3">
+                                        <form method="POST" action="/admin/users/<%= u.id %>/update" class="edit-form"
+                                            onsubmit="return confirm('Confirmer la modification de <%= u.nom %> ?');">
+                                            <input type="text" name="nom" value="<%= u.nom %>" required>
+                                            <input type="text" name="email" value="<%= u.email %>" required>
+                                            <select name="role" required>
+                                                <option value="user" <%=u.role==='user' ? 'selected' : '' %>>user
+                                                </option>
+                                                <option value="admin" <%=u.role==='admin' ? 'selected' : '' %>>admin
+                                                </option>
+                                            </select>
+                                            <button type="submit" class="save">Enregistrer</button>
+                                        </form>
+                                    </td>
+                                    <td>
+                                        <form method="POST" action="/admin/users/<%= u.id %>/delete"
+                                            onsubmit="return confirm('Supprimer <%= u.nom %> ?');">
+                                            <button class="danger" type="submit">Supprimer</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                <% }) %>
+                                    <% } else { %>
+                                        <tr>
+                                            <td colspan="5" class="no-users">Aucun utilisateur.</td>
+                                        </tr>
+                                        <% } %>
+                    </tbody>
+                </table>
+    </div>
+
+    <script>
+        // Supprime le message de succès après 3 secondes
+        setTimeout(() => {
+            const msg = document.querySelector('.flash');
+            if (msg) msg.style.display = 'none';
+        }, 3000);
+    </script>
+</body>
+
+</html>

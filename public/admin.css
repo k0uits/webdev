@@ -1,0 +1,109 @@
+body {
+    background-color: #2b4a64;
+    color: #fff;
+    font-family: Arial, sans-serif;
+}
+
+.admin-wrap {
+    max-width: 950px;
+    margin: 40px auto;
+    padding: 16px;
+}
+
+a.back {
+    color: #aaf;
+    text-decoration: none;
+}
+
+h1 {
+    color: #fff;
+    margin-bottom: 20px;
+}
+
+.flash {
+    background: #0a7;
+    color: #fff;
+    padding: 12px 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    animation: fadeOut 0.5s ease forwards;
+    animation-delay: 2.8s;
+}
+
+@keyframes fadeOut {
+    to {
+        opacity: 0;
+        transform: translateY(-10px);
+        visibility: hidden;
+    }
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    color: #000;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+th,
+td {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    text-align: left;
+}
+
+th {
+    background: #f6f6f6;
+}
+
+input[type="text"],
+select {
+    padding: 6px 8px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    width: 150px;
+}
+
+select {
+    width: 120px;
+}
+
+button {
+    border: none;
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.save {
+    background: #0a7;
+    color: #fff;
+}
+
+.save:hover {
+    opacity: 0.9;
+}
+
+.danger {
+    background: #f33;
+    color: #fff;
+}
+
+.danger:hover {
+    opacity: 0.9;
+}
+
+.no-users {
+    padding: 20px;
+    text-align: center;
+    color: #ccc;
+}
+
+.edit-form {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+};

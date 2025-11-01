@@ -1,0 +1,27 @@
+[
+  {
+    "id": "bjr",
+    "titre": "Dis bjr",
+    "questions": [
+      {
+        "id": "1",
+        "enonce": "bjr ?",
+        "types": "simple",
+        "choisir": [
+          {
+            "id": "c1",
+            "texte": "oui"
+          },
+          {
+            "id": "c2",
+            "texte": "non"
+          }
+        ],
+        "correction": [
+          "c1"
+        ]
+      }
+    ],
+    "faita": "2025-10-28T16:10:54.085Z"
+  }
+]

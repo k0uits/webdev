@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>QCM</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+        body {
+            font-family: system-ui, sans-serif;
+            max-width: 800px;
+            margin: 24px auto;
+            padding: 0 16px;
+        }
+
+        h1 {
+            margin-bottom: 8px;
+        }
+
+        .q {
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        button {
+            margin-top: 16px;
+            padding: 8px 14px;
+            cursor: pointer;
+        }
+
+        .ok {
+            color: #2e7d32;
+        }
+
+        .ko {
+            color: #c62828;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>QCM – Bienvenue 👋</h1>
+    <p>Répondez aux questions et cliquez sur « Valider ».</p>
+
+    <form id="qcm">
+        <div class="q">
+            <p>1) Express est un framework pour :</p>
+            <label><input type="radio" name="q1" value="a" /> a) Base de données</label><br />
+            <label><input type="radio" name="q1" value="b" /> b) Serveur HTTP</label><br />
+            <label><input type="radio" name="q1" value="c" /> c) Bibliothèque CSS</label>
+        </div>
+
+        <div class="q">
+            <p>2) TypeScript apporte :</p>
+            <label><input type="radio" name="q2" value="a" /> a) Styles</label><br />
+            <label><input type="radio" name="q2" value="b" /> b) Typage statique</label><br />
+            <label><input type="radio" name="q2" value="c" /> c) Moteur de base de données</label>
+        </div>
+
+        <div class="q">
+            <p>3) La méthode HTTP pour créer une ressource :</p>
+            <label><input type="radio" name="q3" value="a" /> a) GET</label><br />
+            <label><input type="radio" name="q3" value="b" /> b) POST</label><br />
+            <label><input type="radio" name="q3" value="c" /> c) DELETE</label>
+        </div>
+
+        <button type="submit">Valider</button>
+    </form>
+
+    <p id="resultat"></p>
+
+    <script>
+        const bonnes = { q1: "b", q2: "b", q3: "b" };
+        document.getElementById("qcm")?.addEventListener("submit", (e) => {
+            e.preventDefault();
+            let score = 0, total = Object.keys(bonnes).length;
+            for (const [k, v] of Object.entries(bonnes)) {
+                const checked = document.querySelector(`input[name="${k}"]:checked`);
+                if (checked && checked.value === v) score++;
+            }
+            const r = document.getElementById("resultat");
+            r.textContent = `Score : ${score} / ${total}`;
+            r.className = score === total ? "ok" : "ko";
+        });
+    </script>
+</body>
+
+</html>

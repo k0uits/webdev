@@ -1,0 +1,16 @@
+[
+  {
+    "id": 1761866964593,
+    "nom": "mathys",
+    "email": "mathys@gmail.com",
+    "password": "$2b$10$bWFUO6UEpQ3dH4v.mTC18Ob2SwxeVh/ldt5CypTh7Liyi91zU7PFe",
+    "role": "admin"
+  },
+  {
+    "id": 1761934138736,
+    "nom": "celine",
+    "email": "celine@gmail.com",
+    "password": "$2b$10$NS9K2.WrV/kXFiKtz1uMkOZO/8I4ACVT43FIU9mt9TOYdney9mmgq",
+    "role": "user"
+  }
+]
