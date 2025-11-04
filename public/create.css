@@ -176,3 +176,181 @@ fieldset input {
         font-size: 14px;
     }
 }
+
+
+    .question-card {
+      background: #f8f9fa;
+      border: 2px solid #55D5E0;
+      border-radius: 15px;
+      padding: 25px;
+      margin-bottom: 25px;
+      position: relative;
+    }
+
+    .question-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .question-title {
+      color: #335F8A;
+      font-weight: 700;
+      font-size: 16px;
+    }
+
+    .btn-delete-question {
+      background: #dc3545;
+      color: white;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.3s ease;
+    }
+
+    .btn-delete-question:hover {
+      background: #c82333;
+      transform: scale(1.05);
+    }
+
+    .question-input {
+      width: 100%;
+      padding: 15px;
+      border: 2px solid #55D5E0;
+      border-radius: 10px;
+      font-size: 16px;
+      margin-bottom: 20px;
+      background: white;
+    }
+
+    .question-input:focus {
+      outline: none;
+      border-color: #F26619;
+      box-shadow: 0 0 0 3px rgba(242, 102, 25, 0.1);
+    }
+
+    .type-selector {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .type-btn {
+      flex: 1;
+      padding: 12px;
+      border: 2px solid #55D5E0;
+      background: white;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      color: #2F4558;
+    }
+
+    .type-btn.active {
+      background: linear-gradient(135deg, #55D5E0 0%, #335F8A 100%);
+      color: white;
+      border-color: #335F8A;
+    }
+
+    .type-btn:hover:not(.active) {
+      border-color: #F26619;
+      background: #fff5f0;
+    }
+
+    .choices-container {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .choice-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .choice-checkbox {
+      width: 24px;
+      height: 24px;
+      cursor: pointer;
+      accent-color: #28a745;
+      flex-shrink: 0;
+    }
+
+    .choice-input {
+      flex: 1;
+      padding: 12px;
+      border: 2px solid #dee2e6;
+      border-radius: 8px;
+      font-size: 15px;
+      transition: all 0.3s ease;
+    }
+
+    .choice-input:focus {
+      outline: none;
+      border-color: #F26619;
+      background: white;
+    }
+
+    .choice-item.correct .choice-input {
+      border-color: #28a745;
+      background: #f0fff4;
+    }
+
+    .btn-remove-choice {
+      background: #dc3545;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-remove-choice:hover {
+      background: #c82333;
+    }
+
+    .btn-add-choice {
+      width: 100%;
+      padding: 10px;
+      background: white;
+      border: 2px dashed #55D5E0;
+      color: #335F8A;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      margin-top: 10px;
+      transition: all 0.3s ease;
+    }
+
+    .btn-add-choice:hover {
+      border-color: #F26619;
+      background: #fff5f0;
+    }
+
+    .hint {
+      font-size: 13px;
+      color: #6c757d;
+      margin-top: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .hint::before {
+      content: "ℹ️";
+    }
+
+    #status.success::before {
+      content: "✅ ";
+    }
+
+    #status.error::before {
+      content: "❌ ";
+    }
