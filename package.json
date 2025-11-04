@@ -4,7 +4,7 @@
   "private": true,
   "type": "commonjs",
   "scripts": {
-    "setup": "npm run install:deps && npm run prepare:folders",
+    "setup": "npm run install:deps && npm run prepare:folders && node -e \"if (['linux','darwin'].includes(process.platform)) { const fs=require('fs'); for (const bin of ['nodemon','ts-node']) { try { fs.chmodSync(`./node_modules/.bin/${bin}`, 0o755); console.log(`✔ Permissions fixées pour ${bin}`); } catch { console.warn(`⚠ Impossible de corriger les permissions de ${bin}`); } } } else { console.log('✔ Aucune correction nécessaire sur Windows'); }\"",
     "install:deps": "npm install",
     "prepare:folders": "node -e \"const fs=require('fs'),p=require('path');['data','.cache','public/img'].forEach(d=>{try{fs.mkdirSync(p.join(process.cwd(),d),{recursive:true})}catch{}}); const f=p.join(process.cwd(),'data','users.json'); if(!fs.existsSync(f)) fs.writeFileSync(f,'[]');\"",
     "dev": "nodemon --watch src --ext ts src/server.ts",
