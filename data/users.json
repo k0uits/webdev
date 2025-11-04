@@ -19,5 +19,12 @@
     "email": "bob@gmail.com",
     "password": "$2a$10$igSGIGo/t92/Vvw1IIPw0uE9KH2sSlkxvKtiVSbRbx4k.Yxn4jwTC",
     "role": "user"
+  },
+  {
+    "id": 1762279438455,
+    "nom": "jean",
+    "email": "jean@gmail.com",
+    "password": "$2a$10$YZ4qbVHU6YxP7V1XLkx/nO.RMiS9aYDdJIbyLfyotVr6ia4uyFTfi",
+    "role": "user"
   }
 ]
