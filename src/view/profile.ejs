@@ -11,80 +11,166 @@
             font-family: Arial, sans-serif;
             color: #fff;
             display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 50px;
+            justify-content: center;
         }
 
-        .profile-card {
-            background: #fff;
-            color: #000;
-            border-radius: 12px;
-            padding: 30px 40px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-            width: 350px;
-            text-align: center;
+        .card {
+            width: min(900px, 95vw);
+            background: #1f3548;
+            padding: 28px;
+            margin: 36px 0;
+            border-radius: 16px;
+            box-shadow: 0 10px 24px rgba(0, 0, 0, .25);
         }
 
-        .profile-card img {
-            width: 90px;
-            height: 90px;
-            border-radius: 50%;
-            margin-bottom: 10px;
-        }
-
-        h1 {
-            color: #2b4a64;
-            margin-bottom: 20px;
+        h1,
+        h2 {
+            margin: 0 0 16px 0;
         }
 
         .info {
-            text-align: left;
-            margin: 10px 0;
+            margin: 6px 0;
         }
 
-        .label {
-            font-weight: bold;
-            color: #2b4a64;
+        .row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
         }
 
-        .logout {
-            margin-top: 20px;
-            display: inline-block;
-            background: #f33;
-            color: #fff;
-            padding: 10px 20px;
+        form {
+            background: #27455e;
+            border-radius: 12px;
+            padding: 16px;
+        }
+
+        label {
+            display: block;
+            font-size: 14px;
+            margin: 8px 0 4px;
+            opacity: .9;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px 12px;
             border-radius: 8px;
-            text-decoration: none;
+            border: 0;
+            outline: none;
         }
 
-        .logout:hover {
-            opacity: 0.9;
+        .actions {
+            margin-top: 12px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn {
+            background: #5bbd72;
+            color: #072;
+            font-weight: 600;
+            border: 0;
+            padding: 10px 14px;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        .btn.secondary {
+            background: #3ea1f4;
+            color: #003;
+        }
+
+        .btn.danger {
+            background: #f34d4d;
+            color: #300;
+        }
+
+        .message {
+            margin-bottom: 12px;
+            padding: 10px 12px;
+            background: #133045;
+            border-left: 4px solid #5bbd72;
+            border-radius: 6px;
+        }
+
+        a.link {
+            color: #bfe1ff;
+            text-decoration: underline;
         }
     </style>
 </head>
 
 <body>
-    <div class="profile-card">
-        <img src="/img/user-icon.png" alt="Icône utilisateur">
-        <h1>Profil</h1>
+    <div class="card">
+        <h1>Mon profil</h1>
 
-        <% if (user) { %>
-            <div class="info"><span class="label">Nom :</span>
-                <%= user.nom %>
+        <% if (typeof message !=="undefined" && message) { %>
+            <div class="message">
+                <%= message %>
             </div>
-            <div class="info"><span class="label">Email :</span>
-                <%= user.email %>
-            </div>
-            <div class="info"><span class="label">Rôle :</span>
-                <%= user.role || "user" %>
-            </div>
-            <% } else { %>
-                <p>Vous n’êtes pas connecté.</p>
-                <% } %>
+            <% } %>
 
-                    <a href="/" class="logout">Retour à l'accueil</a>
+                <% if (user) { %>
+                    <div class="info"><strong>Identifiant :</strong>
+                        <%= user.id %>
+                    </div>
+                    <div class="info"><strong>Rôle :</strong>
+                        <%= user.role || "user" %>
+                    </div>
+
+                    <div class="row" style="margin-top:16px;">
+                        <!-- A) Mettre à jour nom + email -->
+                        <form method="POST" action="/profile/update" autocomplete="on">
+                            <h2>Informations</h2>
+                            <label for="nom">Nom</label>
+                            <input id="nom" name="nom" type="text" value="<%= user.nom %>" required />
+                            <label for="email">Email</label>
+                            <input id="email" name="email" type="email" value="<%= user.email %>" required />
+                            <div class="actions">
+                                <button class="btn" type="submit">Mettre à jour</button>
+                            </div>
+                        </form>
+
+                        <!-- B) Changer le mot de passe -->
+                        <form method="POST" action="/profile/password" autocomplete="off">
+                            <h2>Mot de passe</h2>
+                            <label for="currentPassword">Mot de passe actuel</label>
+                            <input id="currentPassword" name="currentPassword" type="password" required />
+                            <label for="newPassword">Nouveau mot de passe</label>
+                            <input id="newPassword" name="newPassword" type="password" minlength="6" required />
+                            <label for="confirmPassword">Confirmer le nouveau mot de passe</label>
+                            <input id="confirmPassword" name="confirmPassword" type="password" minlength="6" required />
+                            <div class="actions">
+                                <button class="btn secondary" type="submit">Modifier le mot de passe</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- C) Supprimer le compte -->
+                    <form method="POST" action="/profile/delete" onsubmit="return confirmDelete();"
+                        style="margin-top:24px;">
+                        <h2>Supprimer mon compte</h2>
+                        <p>Action irréversible. Tapez <code>DELETE</code> et entrez votre mot de passe pour confirmer.
+                        </p>
+                        <label for="confirm">Confirmation</label>
+                        <input id="confirm" name="confirm" type="text" placeholder="DELETE" required />
+                        <label for="password">Mot de passe</label>
+                        <input id="password" name="password" type="password" required />
+                        <div class="actions">
+                            <button class="btn danger" type="submit">Supprimer définitivement</button>
+                            <a class="link" href="/">Annuler</a>
+                        </div>
+                    </form>
+                    <% } else { %>
+                        <p>Vous n’êtes pas connecté. <a class="link" href="/login">Se connecter</a></p>
+                        <% } %>
     </div>
+
+    <script>
+        function confirmDelete() {
+            return confirm("Confirmer la suppression définitive de votre compte ?");
+        }
+    </script>
 </body>
 
 </html>
