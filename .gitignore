@@ -1,1 +1,21 @@
+# Node.js
 node_modules/
+dist/
+build/
+.cache/
+*.sqlite
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+logs/
+*.log
+
+# Environment
+.env
+.env.local
+
+# OS files
+.DS_Store
+Thumbs.db
