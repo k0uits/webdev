@@ -19,14 +19,28 @@ export async function deleteUser(req: Request, res: Response) {
 
 export async function updateUser(req: Request, res: Response) {
     const id = Number(req.params.id);
-    const { nom, email, role } = req.body as { nom: string; email: string; role: string };
+    type Role = "user" | "admin";
+    const { nom, email, role } = req.body as { nom: string; email: string; role?: string };
+
+    const rawRole = (role ?? "").toString().trim().toLowerCase();
+    const safeRole: Role = rawRole === "admin" ? "admin" : "user";
+
+    const ok = await updateUserFields(
+        id,
+        nom.trim(),
+        email.trim(),
+        safeRole
+    );
 
     if (!id || Number.isNaN(id)) return res.status(400).send("ID invalide");
     if (!nom?.trim() || !email?.trim()) return res.status(400).send("Champs manquants");
 
-    const ok = await updateUserFields(id, nom.trim(), email.trim(), role?.trim() || "user");
+
     if (!ok) return res.status(404).send("Utilisateur introuvable");
+
 
     // redirige avec message
     return res.redirect("/admin?message=Modifications enregistrées avec succès");
 }
+
+
