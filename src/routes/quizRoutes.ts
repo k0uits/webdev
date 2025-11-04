@@ -1,5 +1,6 @@
 import { Router, } from "express";
 import { getCreatePage, listQuizzes, createQuiz, getQuizById, deleteQuiz  } from "../controllers/quizController";
+import { attachUser } from "../middleware/auth";
 
 const router = Router();
 
@@ -18,5 +19,10 @@ router.post("/quizzes", createQuiz);
 
 // Suppression d'un quiz
 router.delete("/quizzes/:id", deleteQuiz);
+
+router.post("/quizzes",attachUser , createQuiz);
+
+// suppression réservée aux connectés (logique fine dans deleteQuiz)
+router.delete("/quizzes/:id", attachUser, deleteQuiz);
 
 export default router;

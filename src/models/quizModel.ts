@@ -17,6 +17,11 @@ export interface Quiz {
   titre: string;
   questions: Question[];
   faita: string;
+
+  ownerId?: string | number;
+  ownerEmail?: string;
+
+  email?: string;
 }
 
 // --- Définition du chemin vers le fichier de stockage des quiz ---

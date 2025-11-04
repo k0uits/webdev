@@ -29,12 +29,33 @@ export async function login(req: Request, res: Response, next: NextFunction) {
       if (err) return next(err);
       (req.session as any).userId = user.id;
 
+      // Stocker un snapshot complet de l'utilisateur dans la session (sans mot de passe)
+      const sessionUser: any = {
+        id: user.id,
+        nom: user.nom,
+        email: user.email
+      };
+
+      if (user.role) {
+        sessionUser.role = user.role;
+      } else {
+        sessionUser.role = "user";
+      }
+      (req.session as any).user = sessionUser;
+
       req.session.save((err2) => {
         if (err2) return next(err2);
+
+        // Préparer la réponse sans utiliser || pour le rôle
+        let roleSafe = "user";
+        if (user.role) {
+          roleSafe = user.role;
+        }
+
         return res.json({
           ok: true,
           redirect: "/",
-          user: { id: user.id, nom: user.nom, email: user.email, role: user.role || "user" },
+          user: { id: user.id, nom: user.nom, email: user.email, role: roleSafe },
         });
       });
     });
@@ -86,6 +107,10 @@ export async function register(req: Request, res: Response, next: NextFunction) 
 export function logout(req: Request, res: Response, _next: NextFunction) {
   // nom du cookie de session : par défaut "connect.sid"
   const cookieName = "connect.sid";
+
+  // Purge explicite des infos utilisateur en session avant destroy
+  (req.session as any).userId = undefined;
+  (req.session as any).user = undefined;
 
   req.session.destroy(() => {
     res.clearCookie(cookieName);
