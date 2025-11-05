@@ -102,9 +102,9 @@
           location.href = "/quizzes/" + encodeURIComponent(quiz.id);
         });
 
-        // --- ✅ Afficher bouton Supprimer seulement pour l’auteur ou admin
+        // --- Afficher bouton Supprimer seulement pour l’auteur ou admin
         const canDelete =
-          me && (me.role === "admin" || String(me.id) === String(quiz.auteurId));
+          quiz && quiz.id && quiz.id !== "#" && me && (me.role === "admin" || String(me.id) === String(quiz.auteurId));
 
         if (canDelete) {
           const controls = document.createElement("div");

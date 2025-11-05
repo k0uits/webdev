@@ -58,7 +58,7 @@ export function createQuiz(req: Request, res: Response) {
       titre,
       questions: questions as Question[],
       faita: new Date().toISOString(),
-      auteurId: String(me.id),     // ← ICI on affecte l’auteur
+      auteurId: String(me.id),     
     };
 
     quizzes.push(newQuiz);
