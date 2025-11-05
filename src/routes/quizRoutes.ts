@@ -1,5 +1,5 @@
 import { Router, } from "express";
-import { getCreatePage, listQuizzes, createQuiz, getQuizById, deleteQuiz  } from "../controllers/quizController";
+import { getCreatePage, listQuizzes, createQuiz, getQuizById, deleteQuiz, showQuizPage  } from "../controllers/quizController";
 
 const router = Router();
 
@@ -8,7 +8,9 @@ const router = Router();
 // Page de création (formulaire)
 router.get("/quizzes/new", getCreatePage);
 
-router.get("/quizzes/:id", getQuizById);
+router.get("/quizzes/api/:id", getQuizById);
+
+router.get("/quizzes/:id", showQuizPage);
 
 // API : liste des quiz
 router.get("/quizzes", listQuizzes);

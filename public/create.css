@@ -34,7 +34,7 @@ body {
     color: #2F4558;
     text-decoration: none;
     font-weight: bold;
-    transition: color 0.3s ease, transform 0.2s ease;
+    transition: color 0.3s ease;
     cursor: pointer;
 }
 
@@ -68,7 +68,9 @@ label {
     font-size: 14px;
 }
 
-input[type="text"] {
+input[type="text"],
+.question-input,
+.choice-input {
     width: 100%;
     padding: 15px;
     border: 2px solid #55D5E0;
@@ -78,7 +80,9 @@ input[type="text"] {
     background: #f8f9fa;
 }
 
-input[type="text"]:focus {
+input[type="text"]:focus,
+.question-input:focus,
+.choice-input:focus {
     outline: none;
     border-color: #F26619;
     background: white;
@@ -89,17 +93,31 @@ input[type="text"]::placeholder {
     color: #adb5bd;
 }
 
+.choice-input {
+    padding: 12px;
+    border-color: #dee2e6;
+    font-size: 15px;
+}
+
+.btn-add,
+.btn-submit,
+.btn-add-choice,
+.type-btn,
+.btn-delete-question,
+.btn-remove-choice {
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
 .btn-add {
     width: 100%;
     padding: 12px;
     background: linear-gradient(135deg, #55D5E0 0%, #335F8A 100%);
     color: white;
-    border: none;
-    border-radius: 10px;
     font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
     margin: 20px 0;
 }
 
@@ -113,12 +131,7 @@ input[type="text"]::placeholder {
     padding: 15px;
     background: linear-gradient(135deg, #F6B12D 0%, #F26619 100%);
     color: white;
-    border: none;
-    border-radius: 10px;
     font-size: 18px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
     margin-top: 20px;
     text-transform: uppercase;
     letter-spacing: 1px;
@@ -127,6 +140,154 @@ input[type="text"]::placeholder {
 .btn-submit:hover {
     transform: translateY(-2px);
     box-shadow: 0 10px 25px rgba(242, 102, 25, 0.3);
+}
+
+.btn-add-choice {
+    width: 100%;
+    padding: 10px;
+    background: white;
+    border: 2px dashed #55D5E0;
+    color: #335F8A;
+    border-radius: 8px;
+    margin-top: 10px;
+}
+
+.btn-add-choice:hover {
+    border-color: #F26619;
+    background: #fff5f0;
+}
+
+.type-btn {
+    flex: 1;
+    padding: 12px;
+    border: 2px solid #55D5E0;
+    background: white;
+    color: #2F4558;
+}
+
+.type-btn.active {
+    background: linear-gradient(135deg, #55D5E0 0%, #335F8A 100%);
+    color: white;
+    border-color: #335F8A;
+}
+
+.type-btn:hover:not(.active) {
+    border-color: #F26619;
+    background: #fff5f0;
+}
+
+.btn-delete-question {
+    background: #dc3545;
+    color: white;
+    padding: 8px 15px;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+.btn-delete-question:hover {
+    background: #c82333;
+    transform: scale(1.05);
+}
+
+.btn-remove-choice {
+    background: #dc3545;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+.btn-remove-choice:hover {
+    background: #c82333;
+}
+
+.question-card {
+    background: #f8f9fa;
+    border: 2px solid #55D5E0;
+    border-radius: 15px;
+    padding: 25px;
+    margin-bottom: 25px;
+}
+
+.question-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.question-title {
+    color: #335F8A;
+    font-weight: 700;
+    font-size: 16px;
+}
+
+.question-input {
+    margin-bottom: 20px;
+    background: white;
+}
+
+.type-selector {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.choices-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.choice-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.choice-checkbox {
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    accent-color: #28a745;
+    flex-shrink: 0;
+}
+
+.hint {
+    font-size: 13px;
+    color: #6c757d;
+    margin-top: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.hint::before {
+    content: "ℹ️";
+}
+
+#status {
+    text-align: center;
+    margin-top: 15px;
+    font-weight: 600;
+    font-size: 16px;
+}
+
+#status.success {
+    color: #28a745;
+}
+
+#status.success::before {
+    content: "✅ ";
+}
+
+#status.error {
+    color: #dc3545;
+}
+
+#status.error::before {
+    content: "❌ ";
 }
 
 fieldset {
@@ -146,21 +307,6 @@ legend {
 
 fieldset input {
     margin-bottom: 12px;
-}
-
-#status {
-    text-align: center;
-    margin-top: 15px;
-    font-weight: 600;
-    font-size: 16px;
-}
-
-.success {
-    color: #28a745;
-}
-
-.error {
-    color: #dc3545;
 }
 
 @media (max-width: 768px) {
