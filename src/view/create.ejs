@@ -29,235 +29,234 @@
   </div>
 
   <script>
-    let questionCount = 0;
+function createQuestion() {
+  const questions = document.querySelectorAll('.question-card');
+  const qIndex = questions.length + 1;
 
-    function createQuestion() {
-      questionCount++;
-      const qIndex = questionCount;
+  const questionDiv = document.createElement('div');
+  questionDiv.className = 'question-card';
+  questionDiv.dataset.qIndex = qIndex;
 
-      const questionDiv = document.createElement('div');
-      questionDiv.className = 'question-card';
-      questionDiv.dataset.qIndex = qIndex;
+  questionDiv.innerHTML = `
+    <div class="question-header">
+      <span class="question-title">Question ${qIndex}</span>
+      <button type="button" class="btn-delete-question" onclick="deleteQuestion(this)">
+        Supprimer
+      </button>
+    </div>
 
-      questionDiv.innerHTML = `
-        <div class="question-header">
-          <span class="question-title">Question ${qIndex}</span>
-          <button type="button" class="btn-delete-question" onclick="deleteQuestion(${qIndex})">
-            Supprimer
-          </button>
-        </div>
+    <input type="text" class="question-input" placeholder="Énoncé de la question" data-role="enonce" required>
 
-        <input type="text" class="question-input" placeholder="Énoncé de la question" data-role="enonce" required>
+    <div class="type-selector">
+      <button type="button" class="type-btn active" data-type="simple" onclick="setQuestionType(this, 'simple')">
+        Choix unique
+      </button>
+      <button type="button" class="type-btn" data-type="multiple" onclick="setQuestionType(this, 'multiple')">
+        Choix multiple
+      </button>
+    </div>
 
-        <div class="type-selector">
-          <button type="button" class="type-btn active" data-type="simple" onclick="setQuestionType(${qIndex}, 'simple')">
-            ⭕ Choix unique
-          </button>
-          <button type="button" class="type-btn" data-type="multiple" onclick="setQuestionType(${qIndex}, 'multiple')">
-            ☑️ Choix multiple
-          </button>
-        </div>
+    <div class="choices-container" data-role="choices"></div>
 
-        <div class="choices-container" data-role="choices">
-          <!-- Les choix seront ajoutés ici -->
-        </div>
+    <button type="button" class="btn-add-choice" onclick="addChoice(this)">
+      + Ajouter une option
+    </button>
 
-        <button type="button" class="btn-add-choice" onclick="addChoice(${qIndex})">
-          + Ajouter une option
-        </button>
+    <div class="hint">Cochez la ou les bonne(s) réponse(s)</div>
+  `;
 
-        <div class="hint">Cochez la ou les bonne(s) réponse(s)</div>
-      `;
+  document.getElementById('questions').appendChild(questionDiv);
 
-      document.getElementById('questions').appendChild(questionDiv);
+  const choicesContainer = questionDiv.querySelector('[data-role="choices"]');
+  addChoiceToContainer(choicesContainer, qIndex);
+  addChoiceToContainer(choicesContainer, qIndex);
+  
+  renumberQuestions();
+}
 
-      // Ajouter 2 choix par défaut
-      addChoice(qIndex);
-      addChoice(qIndex);
+function deleteQuestion(btn) {
+  const question = btn.closest('.question-card');
+  if (question) {
+    question.remove();
+    renumberQuestions();
+  }
+}
+
+function renumberQuestions() {
+  const questions = document.querySelectorAll('.question-card');
+  questions.forEach((q, index) => {
+    const newIndex = index + 1;
+    q.querySelector('.question-title').textContent = `Question ${newIndex}`;
+    q.dataset.qIndex = newIndex;
+    const inputs = q.querySelectorAll('.choice-checkbox');
+    inputs.forEach(input => {
+      input.name = `correct_q${newIndex}`;
+    });
+  });
+}
+
+function setQuestionType(btn, type) {
+  const question = btn.closest('.question-card');
+  const qIndex = question.dataset.qIndex;
+  const buttons = question.querySelectorAll('.type-btn');
+
+  buttons.forEach(b => {
+    b.classList.toggle('active', b.dataset.type === type);
+  });
+
+  const choiceInputs = question.querySelectorAll('.choice-checkbox');
+  choiceInputs.forEach(input => {
+    input.type = type === 'simple' ? 'radio' : 'checkbox';
+    input.name = `correct_q${qIndex}`;
+  });
+}
+
+function addChoice(btn) {
+  const question = btn.closest('.question-card');
+  const qIndex = question.dataset.qIndex;
+  const choicesContainer = question.querySelector('[data-role="choices"]');
+  addChoiceToContainer(choicesContainer, qIndex);
+}
+
+function addChoiceToContainer(choicesContainer, qIndex) {
+  const question = choicesContainer.closest('.question-card');
+  const choiceIndex = choicesContainer.children.length + 1;
+  const type = question.querySelector('.type-btn.active').dataset.type;
+  const inputType = type === 'simple' ? 'radio' : 'checkbox';
+
+  const choiceDiv = document.createElement('div');
+  choiceDiv.className = 'choice-item';
+  choiceDiv.innerHTML = `
+    <input type="${inputType}" 
+           class="choice-checkbox" 
+           name="correct_q${qIndex}">
+    <input type="text" 
+           class="choice-input" 
+           placeholder="Option ${choiceIndex}" 
+           data-role="choice-text">
+    <button type="button" 
+            class="btn-remove-choice" 
+            onclick="removeChoice(this)">
+      ✕
+    </button>
+  `;
+
+  choicesContainer.appendChild(choiceDiv);
+}
+
+function removeChoice(btn) {
+  const choiceItem = btn.closest('.choice-item');
+  choiceItem.remove();
+}
+
+document.getElementById('addQ').addEventListener('click', createQuestion);
+
+document.getElementById('submit').addEventListener('click', async () => {
+  const statusEl = document.getElementById('status');
+  statusEl.textContent = '';
+  statusEl.className = '';
+
+  const titre = document.getElementById('quizTitle').value.trim();
+
+  if (!titre) {
+    statusEl.textContent = 'Veuillez entrer un titre';
+    statusEl.className = 'error';
+    return;
+  }
+
+  const questionCards = document.querySelectorAll('.question-card');
+
+  if (questionCards.length === 0) {
+    statusEl.textContent = 'Ajoutez au moins une question';
+    statusEl.className = 'error';
+    return;
+  }
+
+  const questions = [];
+
+  for (const card of questionCards) {
+    const enonce = card.querySelector('[data-role="enonce"]').value.trim();
+    if (!enonce) {
+      statusEl.textContent = 'Toutes les questions doivent avoir un énoncé';
+      statusEl.className = 'error';
+      return;
     }
 
-    function deleteQuestion(qIndex) {
-      const question = document.querySelector(`[data-q-index="${qIndex}"]`);
-      if (question) {
-        question.remove();
-        renumberQuestions();
+    const type = card.querySelector('.type-btn.active').dataset.type;
+    const choiceItems = card.querySelectorAll('.choice-item');
+    const choisir = [];
+    const correction = [];
+
+    for (let i = 0; i < choiceItems.length; i++) {
+      const item = choiceItems[i];
+      const text = item.querySelector('[data-role="choice-text"]').value.trim();
+      if (!text) continue;
+
+      const choixId = `c${i + 1}`;
+      choisir.push({ id: choixId, texte: text });
+
+      if (item.querySelector('.choice-checkbox').checked) {
+        correction.push(choixId);
       }
     }
 
-    function renumberQuestions() {
-      const questions = document.querySelectorAll('.question-card');
-      questions.forEach((q, index) => {
-        q.querySelector('.question-title').textContent = `Question ${index + 1}`;
-      });
+    if (choisir.length < 2) {
+      statusEl.textContent = 'Chaque question doit avoir au moins 2 options';
+      statusEl.className = 'error';
+      return;
     }
 
-    function setQuestionType(qIndex, type) {
-      const question = document.querySelector(`[data-q-index="${qIndex}"]`);
-      const buttons = question.querySelectorAll('.type-btn');
-
-      buttons.forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.type === type);
-      });
-
-      // Changer le type des inputs (radio ou checkbox)
-      const choiceInputs = question.querySelectorAll('.choice-checkbox');
-      choiceInputs.forEach(input => {
-        input.type = type === 'simple' ? 'radio' : 'checkbox';
-        input.name = `correct_q${qIndex}`;
-      });
+    if (correction.length === 0) {
+      statusEl.textContent = 'Chaque question doit avoir au moins une bonne réponse';
+      statusEl.className = 'error';
+      return;
     }
 
-    function addChoice(qIndex) {
-      const question = document.querySelector(`[data-q-index="${qIndex}"]`);
-      const choicesContainer = question.querySelector('[data-role="choices"]');
-      const choiceIndex = choicesContainer.children.length + 1;
+    questions.push({
+      id: `q${questions.length + 1}`,
+      enonce,
+      types: type,
+      choisir,
+      correction
+    });
+  }
 
-      const type = question.querySelector('.type-btn.active').dataset.type;
-      const inputType = type === 'simple' ? 'radio' : 'checkbox';
+  const quizData = {
+    id: `quiz_${Date.now()}`,
+    titre,
+    questions
+  };
 
-      const choiceDiv = document.createElement('div');
-      choiceDiv.className = 'choice-item';
-      choiceDiv.innerHTML = `
-        <input type="${inputType}" 
-               class="choice-checkbox" 
-               name="correct_q${qIndex}"
-               onchange="toggleCorrect(this)">
-        <input type="text" 
-               class="choice-input" 
-               placeholder="Option ${choiceIndex}" 
-               data-role="choice-text">
-        <button type="button" 
-                class="btn-remove-choice" 
-                onclick="removeChoice(this)">
-          ✕
-        </button>
-      `;
-
-      choicesContainer.appendChild(choiceDiv);
-    }
-
-    function removeChoice(btn) {
-      const choiceItem = btn.closest('.choice-item');
-      choiceItem.remove();
-    }
-
-    function toggleCorrect(checkbox) {
-      const choiceItem = checkbox.closest('.choice-item');
-      choiceItem.classList.toggle('correct', checkbox.checked);
-    }
-
-    document.getElementById('addQ').addEventListener('click', createQuestion);
-
-    document.getElementById('submit').addEventListener('click', async () => {
-      const statusEl = document.getElementById('status');
-      statusEl.textContent = '';
-      statusEl.className = '';
-
-      const titre = document.getElementById('quizTitle').value.trim();
-
-      if (!titre) {
-        statusEl.textContent = 'Veuillez entrer un titre';
-        statusEl.className = 'error';
-        return;
-      }
-
-      const questionCards = document.querySelectorAll('.question-card');
-
-      if (questionCards.length === 0) {
-        statusEl.textContent = 'Ajoutez au moins une question';
-        statusEl.className = 'error';
-        return;
-      }
-
-      const questions = [];
-
-      for (const card of questionCards) {
-        const enonce = card.querySelector('[data-role="enonce"]').value.trim();
-        if (!enonce) {
-          statusEl.textContent = 'Toutes les questions doivent avoir un énoncé';
-          statusEl.className = 'error';
-          return;
-        }
-
-        const type = card.querySelector('.type-btn.active').dataset.type;
-
-        const choiceItems = card.querySelectorAll('.choice-item');
-        const choisir = [];
-        const correction = [];
-
-        for (let i = 0; i < choiceItems.length; i++) {
-          const item = choiceItems[i];
-          const text = item.querySelector('[data-role="choice-text"]').value.trim();
-          if (!text) continue;
-
-          const choixId = `c${i + 1}`;
-          choisir.push({ id: choixId, texte: text });
-
-          if (item.querySelector('.choice-checkbox').checked) {
-            correction.push(choixId);
-          }
-        }
-
-        if (choisir.length < 2) {
-          statusEl.textContent = 'Chaque question doit avoir au moins 2 options';
-          statusEl.className = 'error';
-          return;
-        }
-
-        if (correction.length === 0) {
-          statusEl.textContent = 'Chaque question doit avoir au moins une bonne réponse';
-          statusEl.className = 'error';
-          return;
-        }
-
-        questions.push({
-          id: `q${questions.length + 1}`,
-          enonce,
-          types: type,
-          choisir,
-          correction
-        });
-      }
-
-      const quizData = {
-        id: `quiz_${Date.now()}`,
-        titre,
-        questions
-      };
-
-      try {
-        const resp = await fetch('/quizzes', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(quizData)
-        });
-
-        const data = await resp.json();
-
-        if (resp.ok) {
-          statusEl.textContent = data.message || 'Quiz créé avec succès !';
-          statusEl.className = 'success';
-
-          // Réinitialiser
-          document.getElementById('quizTitle').value = '';
-          document.getElementById('questions').innerHTML = '';
-          questionCount = 0;
-
-          setTimeout(() => {
-            window.location.href = '/';
-          }, 1500);
-        } else {
-          statusEl.textContent = data.message || 'Erreur lors de la création';
-          statusEl.className = 'error';
-        }
-      } catch (e) {
-        statusEl.textContent = 'Erreur réseau';
-        statusEl.className = 'error';
-      }
+  try {
+    const resp = await fetch('/quizzes', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(quizData)
     });
 
-    // Créer une question par défaut au chargement
-    createQuestion();
+    const data = await resp.json();
+
+    if (resp.ok) {
+      statusEl.textContent = data.message || 'Quiz créé avec succès !';
+      statusEl.className = 'success';
+
+      document.getElementById('quizTitle').value = '';
+      document.getElementById('questions').innerHTML = '';
+
+      setTimeout(() => {
+        window.location.href = '/';
+      }, 1500);
+    } else {
+      statusEl.textContent = data.message || 'Erreur lors de la création';
+      statusEl.className = 'error';
+    }
+  } catch (e) {
+    statusEl.textContent = 'Erreur réseau';
+    statusEl.className = 'error';
+  }
+});
+
+createQuestion();
   </script>
 
 </body>
