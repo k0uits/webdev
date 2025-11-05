@@ -1,207 +1,195 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>WebQuizzer – <%= mode === "mine" ? "Mes quiz" : "Tous les quiz" %></title>
-  <link rel="stylesheet" href="/home.css" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WebQuizzer – <%= mode==="mine" ? "Mes quiz" : "Tous les quiz" %>
+    </title>
+    <link rel="stylesheet" href="/home.css" />
 </head>
+
 <body>
-  <aside class="side-nav">
-    <div class="logo">WebQuizzer</div>
-    <nav class="side-menu">
-      <a href="/" class="side-link">Accueil</a>
-      <a href="/quizzes/all" class="side-link <%= mode === "all" ? "active" : "" %>">Tous les quiz</a>
-      <a href="/quizzes/mine" class="side-link <%= mode === "mine" ? "active" : "" %>">Mes quiz</a>
-      <a href="/quizzes/new" class="side-link create">Créer</a>
-      <% if (user && user.role === "admin") { %>
-        <a href="/admin" class="side-link create">Admin</a>
-      <% } %>
-      <a href="/profile" class="side-link profile-link">👤 <span>Profil</span></a>
-    </nav>
+    <aside class="side-nav">
+        <div class="logo">WebQuizzer</div>
+        <nav class="side-menu">
+            <a href="/" class="side-link">Accueil</a>
+            <a href="/quizzes/all" class="side-link <%= mode === " all" ? "active" : "" %>">Tous les quiz</a>
+            <a href="/quizzes/mine" class="side-link <%= mode === " mine" ? "active" : "" %>">Mes quiz</a>
+            <a href="/quizzes/new" class="side-link create">Créer</a>
+            <% if (user && user.role==="admin" ) { %>
+                <a href="/admin" class="side-link create">Admin</a>
+                <% } %>
+                    <a href="/profile" class="side-link profile-link">👤 <span>Profil</span></a>
+        </nav>
 
-    <div class="side-footer">
-      <p id="welcome"></p>
-      <a href="/login" id="authButton" class="btn-side-login">Connexion</a>
-    </div>
-  </aside>
+        <div class="side-footer">
+            <p id="welcome"></p>
+            <a href="/login" id="authButton" class="btn-side-login">Connexion</a>
+        </div>
+    </aside>
 
-  <main class="main">
-    <section class="carousel-ribbon" style="padding: 24px;">
-      <div id="cards-grid" class="track" style="flex-wrap: wrap; gap: var(--gap);"></div>
-    </section>
-  </main>
+    <main class="main">
+        <section class="carousel-ribbon" style="padding: 24px;">
+            <div id="cards-grid" class="track" style="flex-wrap: wrap; gap: var(--gap);"></div>
+        </section>
+    </main>
 
-  <script>
-    // Expose serveur -> client
-    window.currentUser = JSON.parse('<%- JSON.stringify(user || null) %>');
-    window.pageMode = "<%= mode %>";
-  </script>
+    <script>
+        // Expose serveur -> client
+        window.currentUser = JSON.parse('<%- JSON.stringify(user || null) %>');
+        window.pageMode = "<%= mode %>";
+    </script>
 
-  <!-- Connexion -->
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const welcome = document.getElementById("welcome");
-      const authBtn = document.getElementById("authButton");
-      const me = window.currentUser || null;
+    <!-- Connexion -->
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const welcome = document.getElementById("welcome");
+            const authBtn = document.getElementById("authButton");
+            const me = window.currentUser || null;
 
-      if (me) {
-        welcome.textContent = "Bonjour " + me.nom;
-        authBtn.textContent = "Déconnexion";
-        authBtn.href = "#";
-        authBtn.onclick = async (e) => {
-          e.preventDefault();
-          try {
-            await fetch("/logout", { method: "GET", credentials: "include" });
-            window.location.href = "/";
-          } catch (err) {
-            alert("Erreur lors de la déconnexion !");
-          }
-        };
-      } else {
-        welcome.textContent = "";
-        authBtn.textContent = "Connexion";
-        authBtn.href = "/login";
-        authBtn.onclick = null;
-      }
-    });
-  </script>
+            if (me) {
+                welcome.textContent = "Bonjour " + me.nom;
+                authBtn.textContent = "Déconnexion";
+                authBtn.href = "#";
+                authBtn.onclick = async (e) => {
+                    e.preventDefault();
+                    try {
+                        await fetch("/logout", { method: "GET", credentials: "include" });
+                        window.location.href = "/";
+                    } catch (err) {
+                        alert("Erreur lors de la déconnexion !");
+                    }
+                };
+            } else {
+                welcome.textContent = "";
+                authBtn.textContent = "Connexion";
+                authBtn.href = "/login";
+                authBtn.onclick = null;
+            }
+        });
+    </script>
 
-  <!-- Liste de cartes (même style que carrousel) -->
-  <script>
-    document.addEventListener("DOMContentLoaded", async () => {
-      const grid = document.getElementById("cards-grid");
-      if (!grid) return;
+    <!-- Liste de cartes (même style que carrousel) -->
+    <script>
+        document.addEventListener("DOMContentLoaded", async () => {
+            const grid = document.getElementById("cards-grid");
+            if (!grid) return;
 
-      function readClickedIds() {
-        try {
-          const raw = localStorage.getItem("clickedQuizIds");
-          if (!raw) return [];
-          const arr = JSON.parse(raw);
-          if (Array.isArray(arr)) return arr.map(String);
-        } catch (_e) {}
-        return [];
-      }
+            function readClickedIds() {
+                try {
+                    const raw = localStorage.getItem("clickedQuizIds");
+                    if (!raw) return [];
+                    const arr = JSON.parse(raw);
+                    if (Array.isArray(arr)) return arr.map(String);
+                } catch (_e) { }
+                return [];
+            }
 
-      function createCard(quiz) {
-        const card = document.createElement("div");
-        card.className = "quiz-card";
-        card.setAttribute("data-quiz-id", quiz.id);
-        card.innerHTML = `
+            function createCard(quiz) {
+                const card = document.createElement("div");
+                card.className = "quiz-card";
+                card.setAttribute("data-quiz-id", quiz.id);
+                card.innerHTML = `
           <div class="thumb"></div>
           <div class="title">${quiz.titre}</div>
         `;
-        card.style.cursor = "pointer";
-        card.addEventListener("click", () => {
-          location.href = "/quizzes/" + encodeURIComponent(quiz.id);
-        });
+                card.style.cursor = "pointer";
+                card.addEventListener("click", () => {
+                    location.href = "/quizzes/" + encodeURIComponent(quiz.id);
+                });
 
-        // Afficher "Supprimer" uniquement si autorisé (comme home.ejs)
-        if (quiz && quiz.canDelete === true) {
-          const controls = document.createElement("div");
-          controls.className = "card-controls";
-          const delBtn = document.createElement("button");
-          delBtn.type = "button";
-          delBtn.className = "btn-delete";
-          delBtn.textContent = "Supprimer";
-          delBtn.addEventListener("click", async (e) => {
-            e.stopPropagation();
-            const ok = confirm("Supprimer ce quiz ?");
-            if (!ok) return;
+                // Afficher "Supprimer" uniquement si autorisé (comme home.ejs)
+                if (quiz && quiz.canDelete === true) {
+                    const controls = document.createElement("div");
+                    controls.className = "card-controls";
+                    const delBtn = document.createElement("button");
+                    delBtn.type = "button";
+                    delBtn.className = "btn-delete";
+                    delBtn.textContent = "Supprimer";
+                    delBtn.addEventListener("click", async (e) => {
+                        e.stopPropagation();
+                        const ok = confirm("Supprimer ce quiz ?");
+                        if (!ok) return;
+                        try {
+                            const resp = await fetch("/quizzes/" + encodeURIComponent(quiz.id), {
+                                method: "DELETE",
+                                headers: { "Content-Type": "application/json" },
+                            });
+                            if (resp.ok) {
+                                card.remove();
+                            } else {
+                                const msg = await resp.json().catch(() => ({}));
+                                alert(msg.message || "Suppression impossible");
+                            }
+                        } catch (_err) {
+                            alert("Erreur serveur pendant la suppression");
+                        }
+                    });
+                    controls.appendChild(delBtn);
+                    card.appendChild(controls);
+                }
+
+                return card;
+            }
+
             try {
-              const resp = await fetch("/quizzes/" + encodeURIComponent(quiz.id), {
-                method: "DELETE",
-                headers: { "Content-Type": "application/json" },
-              });
-              if (resp.ok) {
-                card.remove();
-              } else {
-                const msg = await resp.json().catch(() => ({}));
-                alert(msg.message || "Suppression impossible");
-              }
-            } catch (_err) {
-              alert("Erreur serveur pendant la suppression");
-            }
-          });
-          controls.appendChild(delBtn);
-          card.appendChild(controls);
-        }
+                const res = await fetch("/quizzes");
+                const quizzes = await res.json(); // contient {id,titre,ownerId,ownerEmail,canDelete}
 
-        return card;
-      }
+                const me = window.currentUser || null;
+                const mode = window.pageMode;
+                let idsToShow = [];
 
-      try {
-        const res = await fetch("/quizzes");
-        const quizzes = await res.json(); // contient {id,titre,ownerId,ownerEmail,canDelete}
-
-        const me = window.currentUser || null;
-        const mode = window.pageMode;
-        let idsToShow = [];
-
-        if (mode === "mine") {
-          // uniquement mes quiz
-          if (me) {
-            for (let i = 0; i < quizzes.length; i++) {
-              const q = quizzes[i];
-              if (q && q.ownerId !== undefined && q.ownerId !== null) {
-                if (String(q.ownerId) === String(me.id)) {
-                  idsToShow.push(String(q.id));
+                // NOUVEAU COMPORTEMENT
+                if (mode === "mine") {
+                    // uniquement mes quiz
+                    if (me) {
+                        for (let i = 0; i < quizzes.length; i++) {
+                            const q = quizzes[i];
+                            if (q && q.ownerId !== undefined && q.ownerId !== null) {
+                                if (String(q.ownerId) === String(me.id)) {
+                                    idsToShow.push(String(q.id));
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    // "all" = TOUS les quiz du site, peu importe le créateur
+                    for (let i = 0; i < quizzes.length; i++) {
+                        const q = quizzes[i];
+                        if (q && q.id !== undefined && q.id !== null) {
+                            idsToShow.push(String(q.id));
+                        }
+                    }
                 }
-              }
-            }
-          }
-        } else {
-          // "all" = mes quiz U quiz cliqués
-          const clicked = readClickedIds();
-          const seen = {};
-          if (me) {
-            for (let i = 0; i < quizzes.length; i++) {
-              const q = quizzes[i];
-              if (q && q.ownerId !== undefined && q.ownerId !== null) {
-                if (String(q.ownerId) === String(me.id)) {
-                  const k = String(q.id);
-                  if (!seen[k]) {
-                    seen[k] = true;
-                    idsToShow.push(k);
-                  }
+
+                // Affichage filtré
+                grid.innerHTML = "";
+                for (let i = 0; i < quizzes.length; i++) {
+                    const q = quizzes[i];
+                    const idStr = String(q.id);
+                    if (idsToShow.indexOf(idStr) !== -1) {
+                        const card = createCard(q);
+                        grid.appendChild(card);
+                    }
                 }
-              }
-            }
-          }
-          for (let j = 0; j < clicked.length; j++) {
-            const k = String(clicked[j]);
-            if (!seen[k]) {
-              seen[k] = true;
-              idsToShow.push(k);
-            }
-          }
-        }
 
-        // Affichage filtré
-        grid.innerHTML = "";
-        for (let i = 0; i < quizzes.length; i++) {
-          const q = quizzes[i];
-          const idStr = String(q.id);
-          if (idsToShow.indexOf(idStr) !== -1) {
-            const card = createCard(q);
-            grid.appendChild(card);
-          }
-        }
-
-        // Si aucun
-        if (grid.children.length === 0) {
-          const empty = document.createElement("div");
-          empty.textContent = "Aucun quiz à afficher.";
-          empty.style.color = "#fff";
-          grid.appendChild(empty);
-        }
-      } catch (err) {
-        const errMsg = document.createElement("div");
-        errMsg.textContent = "Erreur de chargement des quiz.";
-        errMsg.style.color = "red";
-        grid.appendChild(errMsg);
-      }
-    });
-  </script>
+                // Si aucun
+                if (grid.children.length === 0) {
+                    const empty = document.createElement("div");
+                    empty.textContent = "Aucun quiz à afficher.";
+                    empty.style.color = "#fff";
+                    grid.appendChild(empty);
+                }
+            } catch (err) {
+                const errMsg = document.createElement("div");
+                errMsg.textContent = "Erreur de chargement des quiz.";
+                errMsg.style.color = "red";
+                grid.appendChild(errMsg);
+            }
+        });
+    </script>
 </body>
+
 </html>
