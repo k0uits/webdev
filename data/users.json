@@ -19,5 +19,19 @@
     "email": "bob@gmail.com",
     "password": "$2a$10$igSGIGo/t92/Vvw1IIPw0uE9KH2sSlkxvKtiVSbRbx4k.Yxn4jwTC",
     "role": "user"
+  },
+  {
+    "id": 1762282754179,
+    "nom": "khai",
+    "email": "khai@gmail.com",
+    "password": "$2a$10$Pf22iZ0OCGpnOTiAKCNnE.8ivPeJJpLoATZsbzKTRb7Hh3cb2HFne",
+    "role": "admin"
+  },
+  {
+    "id": 1762285249885,
+    "nom": "kaka",
+    "email": "mimi@gmail.com",
+    "password": "$2a$10$vT..SHyr43YVLMWYhjoISu4PrxOaX7fwohj0aKxhfR6AGAITceV2S",
+    "role": "admin"
   }
 ]

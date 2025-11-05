@@ -13,8 +13,8 @@
     <div class="logo">WebQuizzer</div>
     <nav class="side-menu">
       <a href="/" class="side-link active">Accueil</a>
-      <a href="#" class="side-link">Tous les quiz</a>
-      <a href="#" class="side-link">Mes quiz</a>
+      <a href="/quizzes/all" class="side-link">Tous les quiz</a>
+      <a href="/quizzes/mine" class="side-link">Mes quiz</a>
       <a href="/quizzes/new" class="side-link create">Créer</a>
       <% if (user && user.role==="admin" ) { %>
         <a href="/admin" class="side-link create">Admin</a>
@@ -41,16 +41,21 @@
     </section>
   </main>
 
+  <script>
+    window.currentUser = JSON.parse('<%- JSON.stringify(user || null) %>');
+  </script>
+
   <!-- GESTION CONNEXION -->
   <script>
     document.addEventListener("DOMContentLoaded", () => {
       const nom = localStorage.getItem("nom");
       const welcome = document.getElementById("welcome");
       const authBtn = document.getElementById("authButton");
+      const me = window.currentUser || null;
 
-      if (nom) {
+      if (me) {
         // --- Affiche le nom et prépare le bouton Déconnexion ---
-        welcome.textContent = `Bonjour ${nom}`;
+        welcome.textContent = `Bonjour ${me.nom}`;
         authBtn.textContent = "Déconnexion";
         authBtn.href = "#";
 
@@ -82,9 +87,30 @@
   </script>
 
 
+
   <!-- CHARGEMENT DYNAMIQUE DES QUIZ -->
   <script>
     document.addEventListener("DOMContentLoaded", async () => {
+
+      function addClickedQuizId(id) {
+        try {
+          const raw = localStorage.getItem("clickedQuizIds");
+          let arr = [];
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            if (Array.isArray(parsed)) {
+              arr = parsed;
+            }
+          }
+          const idStr = String(id);
+          if (arr.indexOf(idStr) === -1) {
+            arr.push(idStr);
+            localStorage.setItem("clickedQuizIds", JSON.stringify(arr));
+          }
+        } catch (_e) {
+          // ignore
+        }
+      }
       const TOTAL_CASES = 7;
       const track1 = document.querySelector(".track.primary");
       const track2 = document.querySelector(".track.clone");
@@ -101,42 +127,47 @@
 
         card.style.cursor = "pointer";
         card.addEventListener("click", () => {
+          addClickedQuizId(quiz.id);
           location.href = "/quizzes/" + encodeURIComponent(quiz.id);
         });
 
-        const controls = document.createElement("div");
-        controls.className = "card-controls";
-        
-        const delBtn = document.createElement("button");
-        delBtn.type = "button";
-        delBtn.className = "btn-delete";
-        delBtn.textContent = "Supprimer";
-        delBtn.addEventListener("click", async (e) => {
-          e.stopPropagation();
-          const ok = confirm("Supprimer ce quiz ?");
-          if (!ok) return;
+        if (quiz && quiz.canDelete === true) {
+          const controls = document.createElement("div");
+          controls.className = "card-controls";
 
-          try {
-            const resp = await fetch("/quizzes/" + encodeURIComponent(quiz.id), {
-              method: "DELETE",
-              headers: { "Content-Type": "application/json" },
-            });
+          const delBtn = document.createElement("button");
+          delBtn.type = "button";
+          delBtn.className = "btn-delete";
+          delBtn.textContent = "Supprimer";
+          delBtn.addEventListener("click", async (e) => {
+            e.stopPropagation();
+            const ok = confirm("Supprimer ce quiz ?");
+            if (!ok) return;
 
-            if (resp.ok) {
-              card.remove();
-              updateClone();
-            } else {
-              const msg = await resp.json().catch(() => ({}));
-              alert(msg.message || "Suppression impossible");
+            try {
+              const resp = await fetch("/quizzes/" + encodeURIComponent(quiz.id), {
+                method: "DELETE",
+                headers: { "Content-Type": "application/json" },
+              });
+
+              if (resp.ok) {
+                card.remove();
+                updateClone();
+              } else {
+                const msg = await resp.json().catch(() => ({}));
+                alert(msg.message || "Suppression impossible");
+              }
+            } catch (err) {
+              console.error("Erreur suppression:", err);
+              alert("Erreur serveur pendant la suppression");
             }
-          } catch (err) {
-            console.error("Erreur suppression:", err);
-            alert("Erreur serveur pendant la suppression");
-          }
-        });
+          });
 
-        controls.appendChild(delBtn);
-        card.appendChild(controls);
+          controls.appendChild(delBtn);
+          card.appendChild(controls);
+        }
+
+
         return card;
       };
 
@@ -153,6 +184,7 @@
             if (quizId) {
               clone.style.cursor = "pointer";
               clone.addEventListener("click", () => {
+                addClickedQuizId(quizId);
                 location.href = "/quizzes/" + encodeURIComponent(quizId);
               });
 
