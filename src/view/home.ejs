@@ -51,9 +51,10 @@
       const nom = localStorage.getItem("nom");
       const welcome = document.getElementById("welcome");
       const authBtn = document.getElementById("authButton");
+      const me = window.currentUser || null;
 
-      if (nom) {
-        welcome.textContent = `Bonjour ${nom}`;
+      if (me) {
+        welcome.textContent = `Bonjour ${me.nom}`;
         authBtn.textContent = "Déconnexion";
         authBtn.href = "#";
 
@@ -147,8 +148,50 @@
       const updateClone = () => {
         if (!track2) return;
         track2.innerHTML = "";
+
         track1.childNodes.forEach((node) => {
           const clone = node.cloneNode(true);
+
+          // Si c'est une carte de quiz, réattacher les événements
+          if (node.classList && node.classList.contains('quiz-card')) {
+            const quizId = node.getAttribute('data-quiz-id');
+            if (quizId) {
+              clone.style.cursor = "pointer";
+              clone.addEventListener("click", () => {
+                location.href = "/quizzes/" + encodeURIComponent(quizId);
+              });
+
+              // Réattacher l'événement du bouton supprimer
+              const delBtn = clone.querySelector('.btn-delete');
+              if (delBtn) {
+                delBtn.addEventListener("click", async (e) => {
+                  e.stopPropagation();
+                  const ok = confirm("Supprimer ce quiz ?");
+                  if (!ok) return;
+
+                  try {
+                    const resp = await fetch("/quizzes/" + encodeURIComponent(quizId), {
+                      method: "DELETE",
+                      headers: { "Content-Type": "application/json" },
+                    });
+
+                    if (resp.ok) {
+                      node.remove();
+                      clone.remove();
+                      updateClone();
+                    } else {
+                      const msg = await resp.json().catch(() => ({}));
+                      alert(msg.message || "Suppression impossible");
+                    }
+                  } catch (err) {
+                    console.error("Erreur suppression:", err);
+                    alert("Erreur serveur pendant la suppression");
+                  }
+                });
+              }
+            }
+          }
+
           track2.appendChild(clone);
         });
       };
