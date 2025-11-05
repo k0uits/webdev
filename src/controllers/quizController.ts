@@ -24,47 +24,51 @@ export function listQuizzes(_req: Request, res: Response) {
     }
     const data = fs.readFileSync(chemin, "utf-8");
     const quizzes = data.trim() ? JSON.parse(data) : [];
-    const titles = quizzes.map((q: any) => ({ id: q.id, titre: q.titre }));
-    res.status(200).json(titles);
-    //res.json(readQuizzes());
+
+    const titles = quizzes.map((q: any) => ({
+      id: q.id,
+      titre: q.titre,
+      auteurId: q.auteurId ?? q.auteurid ?? null, // tolérant pour anciens enregistrements
+    }));
+
+    return res.status(200).json(titles);
   } catch (err: any) {
     return bad(res, 500, "Erreur lecture quizz.json");
   }
 }
+
 
 // --- Crée un nouveau quiz à partir des données envoyées dans la requête ---
 export function createQuiz(req: Request, res: Response) {
   try {
     const { id, titre, questions } = req.body;
 
-    // Vérification des champs obligatoires
     if (!id || !titre || !Array.isArray(questions))
       return bad(res, 400, "Champs manquants ou invalides");
 
-    const quizzes = readQuizzes();
+    const me = (req as any).user;
+    if (!me) return bad(res, 401, "Authentification requise");
 
-    // Empêche la création d’un quiz avec un identifiant déjà existant
+    const quizzes = readQuizzes();
     if (quizzes.some(q => q.id === id))
       return bad(res, 409, "Un quiz avec cet id existe déjà");
 
-    // Création de l’objet quiz conforme au modèle
     const newQuiz: Quiz = {
       id,
       titre,
       questions: questions as Question[],
-      faita: new Date().toISOString() // Date d’ajout
+      faita: new Date().toISOString(),
+      auteurId: String(me.id),     
     };
 
-    // Ajout du nouveau quiz et écriture dans le fichier JSON
     quizzes.push(newQuiz);
     writeQuizzes(quizzes);
-
-    // Réponse HTTP 201 (créé)
-    res.status(201).json({ message: "Quiz créé.", quiz: newQuiz });
+    return res.status(201).json({ message: "Quiz créé.", quiz: newQuiz });
   } catch (err: any) {
     return bad(res, 500, "Erreur création quiz");
   }
 }
+
 
 export function getQuizById(req: Request, res: Response): void {
 
@@ -132,5 +136,22 @@ export function deleteQuiz(req: Request, res: Response) {
   } catch (err) {
     console.error("Erreur suppression quiz:", err);
     return res.status(500).json({ message: "Erreur serveur pendant la suppression" });
+  }
+}
+
+export function showQuizPage(req: Request, res: Response): void {
+  try {
+    const data = fs.readFileSync(QUIZZ_PATH, "utf-8");
+    const quizzes = data.trim() ? JSON.parse(data) : [];
+    const quiz = quizzes.find((q: any) => q.id === req.params.id);
+
+    if (!quiz) {
+      res.status(404).render("error", { message: "Quiz introuvable." });
+      return;
+    }
+
+    res.render("quizDetail", { quiz });
+  } catch (err: any) {
+    res.status(500).render("error", { message: "Erreur lecture quizz.json" });
   }
 }

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= quiz.titre %> - Quiz</title>
+  <link rel="stylesheet" href="/login.css">
+  <link rel="stylesheet" href="/quiz.css">
+</head>
+
+<body>
+  <div class="container">
+    <a href="/" class="close-btn">&times;</a>
+
+    <h1><%= quiz.titre %></h1>
+    <p class="subtitle">Répondez aux <%= quiz.questions.length %> questions</p>
+
+    <form id="quizForm" class="quiz-content">
+      <% quiz.questions.forEach((q, index) => { %>
+        <div class="question-card" data-question-id="<%= q.id %>">
+          <div class="question-number">Question <%= index + 1 %> / <%= quiz.questions.length %></div>
+          <div class="question-text"><%= q.enonce %></div>
+
+          <div class="choices">
+            <% q.choisir.forEach((choix) => { %>
+              <label class="choice-label">
+                <% if (q.types === 'multiple') { %>
+                  <input type="checkbox" name="q_<%= q.id %>" value="<%= choix.id %>">
+                <% } else { %>
+                  <input type="radio" name="q_<%= q.id %>" value="<%= choix.id %>">
+                <% } %>
+                <span class="choice-text"><%= choix.texte %></span>
+              </label>
+            <% }); %>
+          </div>
+        </div>
+      <% }); %>
+
+      <button type="submit" class="btn-submit">Valider mes réponses</button>
+    </form>
+
+    <div id="result" class="result">
+      <div id="resultMessage"></div>
+      <div class="score" id="scoreDisplay"></div>
+    </div>
+  </div>
+
+  <script>
+    const quizForm = document.getElementById('quizForm');
+    const resultDiv = document.getElementById('result');
+    const resultMessage = document.getElementById('resultMessage');
+    const scoreDisplay = document.getElementById('scoreDisplay');
+
+    const corrections = <%- JSON.stringify(quiz.questions.map(q => ({ id: q.id, correction: q.correction }))) %>;
+
+    quizForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      let score = 0;
+      const totalQuestions = corrections.length;
+
+      corrections.forEach(({ id, correction }) => {
+        const questionCard = document.querySelector(`[data-question-id="${id}"]`);
+        const inputs = questionCard.querySelectorAll('input:checked');
+        const userAnswers = Array.from(inputs).map(input => input.value);
+
+        const isCorrect = 
+          userAnswers.length === correction.length &&
+          userAnswers.every(ans => correction.includes(ans));
+
+        if (isCorrect) {
+          score++;
+          questionCard.classList.add('correct');
+        } else {
+          questionCard.classList.add('incorrect');
+        }
+
+        questionCard.querySelectorAll('input').forEach(input => {
+          input.disabled = true;
+        });
+      });
+
+      const percentage = Math.round((score / totalQuestions) * 100);
+      
+      resultDiv.classList.add('show');
+      if (percentage >= 50) {
+        resultDiv.classList.add('success');
+        resultDiv.classList.remove('error');
+        resultMessage.textContent = 'Félicitations !';
+      } else {
+        resultDiv.classList.add('error');
+        resultDiv.classList.remove('success');
+        resultMessage.textContent = 'Vous pouvez mieux faire !';
+      }
+      
+      scoreDisplay.textContent = `Score : ${score} / ${totalQuestions} (${percentage}%)`;
+
+      e.target.querySelector('button[type="submit"]').disabled = true;
+      e.target.querySelector('button[type="submit"]').style.opacity = '0.5';
+      e.target.querySelector('button[type="submit"]').style.cursor = 'not-allowed';
+
+      resultDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+  </script>
+</body>
+
+</html>

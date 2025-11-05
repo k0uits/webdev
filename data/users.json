@@ -12,5 +12,19 @@
     "email": "celine@gmail.com",
     "password": "$2b$10$NS9K2.WrV/kXFiKtz1uMkOZO/8I4ACVT43FIU9mt9TOYdney9mmgq",
     "role": "user"
+  },
+  {
+    "id": 1762202977089,
+    "nom": "bob",
+    "email": "bob@gmail.com",
+    "password": "$2a$10$igSGIGo/t92/Vvw1IIPw0uE9KH2sSlkxvKtiVSbRbx4k.Yxn4jwTC",
+    "role": "user"
+  },
+  {
+    "id": 1762279438455,
+    "nom": "jean",
+    "email": "jean@gmail.com",
+    "password": "$2a$10$NJGecrl1.GVcSk83Alf7KOyzkwPS/AwBuI2vvtggt4LTmYqcJs05i",
+    "role": "user"
   }
 ]
