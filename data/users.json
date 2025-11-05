@@ -25,13 +25,13 @@
     "nom": "khai",
     "email": "khai@gmail.com",
     "password": "$2a$10$Pf22iZ0OCGpnOTiAKCNnE.8ivPeJJpLoATZsbzKTRb7Hh3cb2HFne",
-    "role": "admin"
+    "role": "user"
   },
   {
     "id": 1762285249885,
     "nom": "kaka",
     "email": "mimi@gmail.com",
     "password": "$2a$10$vT..SHyr43YVLMWYhjoISu4PrxOaX7fwohj0aKxhfR6AGAITceV2S",
-    "role": "admin"
+    "role": "user"
   }
 ]
