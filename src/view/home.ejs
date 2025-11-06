@@ -19,8 +19,8 @@
     <div class="logo">WebQuizzer</div>
     <nav class="side-menu">
       <a href="/" class="side-link active">Accueil</a>
-      <a href="#" class="side-link">Tous les quiz</a>
-      <a href="#" class="side-link">Mes quiz</a>
+      <a href="/quizzes/all" class="side-link">Tous les quiz</a>
+      <a href="/quizzes/mine" class="side-link">Mes quiz</a>
       <a href="/quizzes/new" class="side-link create">Créer</a>
       <% if (user && user.role==="admin" ) { %>
         <a href="/admin" class="side-link create">Admin</a>

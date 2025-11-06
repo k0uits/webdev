@@ -143,6 +143,7 @@ export function showQuizPage(req: Request, res: Response): void {
   try {
     const data = fs.readFileSync(QUIZZ_PATH, "utf-8");
     const quizzes = data.trim() ? JSON.parse(data) : [];
+    const from = req.query.from as string || null;
     const quiz = quizzes.find((q: any) => q.id === req.params.id);
 
     if (!quiz) {
@@ -150,7 +151,7 @@ export function showQuizPage(req: Request, res: Response): void {
       return;
     }
 
-    res.render("quizDetail", { quiz });
+    res.render("quizDetail", { quiz, from });
   } catch (err: any) {
     res.status(500).render("error", { message: "Erreur lecture quizz.json" });
   }

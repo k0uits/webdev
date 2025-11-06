@@ -4,40 +4,61 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title><%= quiz.titre %> - Quiz</title>
+  <title>
+    <%= quiz.titre %> - Quiz
+  </title>
   <link rel="stylesheet" href="/login.css">
   <link rel="stylesheet" href="/quiz.css">
 </head>
 
 <body>
   <div class="container">
-    <a href="/" class="close-btn">&times;</a>
+    <a href="#" class="close-btn" onclick="goBack(event)">✖</a>
 
-    <h1><%= quiz.titre %></h1>
+    <script>
+      function goBack(e) {
+        e.preventDefault();
+        if (document.referrer && document.referrer !== window.location.href) {
+          window.location.href = document.referrer;
+        } else {
+          window.history.back();
+        }
+      }
+    </script>
+
+
+    <h1>
+      <%= quiz.titre %>
+    </h1>
     <p class="subtitle">Répondez aux <%= quiz.questions.length %> questions</p>
 
     <form id="quizForm" class="quiz-content">
-      <% quiz.questions.forEach((q, index) => { %>
+      <% quiz.questions.forEach((q, index)=> { %>
         <div class="question-card" data-question-id="<%= q.id %>">
-          <div class="question-number">Question <%= index + 1 %> / <%= quiz.questions.length %></div>
-          <div class="question-text"><%= q.enonce %></div>
+          <div class="question-number">Question <%= index + 1 %> / <%= quiz.questions.length %>
+          </div>
+          <div class="question-text">
+            <%= q.enonce %>
+          </div>
 
           <div class="choices">
-            <% q.choisir.forEach((choix) => { %>
+            <% q.choisir.forEach((choix)=> { %>
               <label class="choice-label">
-                <% if (q.types === 'multiple') { %>
+                <% if (q.types==='multiple' ) { %>
                   <input type="checkbox" name="q_<%= q.id %>" value="<%= choix.id %>">
-                <% } else { %>
-                  <input type="radio" name="q_<%= q.id %>" value="<%= choix.id %>">
-                <% } %>
-                <span class="choice-text"><%= choix.texte %></span>
+                  <% } else { %>
+                    <input type="radio" name="q_<%= q.id %>" value="<%= choix.id %>">
+                    <% } %>
+                      <span class="choice-text">
+                        <%= choix.texte %>
+                      </span>
               </label>
-            <% }); %>
+              <% }); %>
           </div>
         </div>
-      <% }); %>
+        <% }); %>
 
-      <button type="submit" class="btn-submit">Valider mes réponses</button>
+          <button type="submit" class="btn-submit">Valider mes réponses</button>
     </form>
 
     <div id="result" class="result">
@@ -52,7 +73,7 @@
     const resultMessage = document.getElementById('resultMessage');
     const scoreDisplay = document.getElementById('scoreDisplay');
 
-    const corrections = <%- JSON.stringify(quiz.questions.map(q => ({ id: q.id, correction: q.correction }))) %>;
+    const corrections = JSON.parse('<%- JSON.stringify(quiz.questions.map(q => ({ id: q.id, correction: q.correction }))) %>');
 
     quizForm.addEventListener('submit', (e) => {
       e.preventDefault();
@@ -65,7 +86,7 @@
         const inputs = questionCard.querySelectorAll('input:checked');
         const userAnswers = Array.from(inputs).map(input => input.value);
 
-        const isCorrect = 
+        const isCorrect =
           userAnswers.length === correction.length &&
           userAnswers.every(ans => correction.includes(ans));
 
@@ -82,7 +103,7 @@
       });
 
       const percentage = Math.round((score / totalQuestions) * 100);
-      
+
       resultDiv.classList.add('show');
       if (percentage >= 50) {
         resultDiv.classList.add('success');
@@ -93,7 +114,7 @@
         resultDiv.classList.remove('success');
         resultMessage.textContent = 'Vous pouvez mieux faire !';
       }
-      
+
       scoreDisplay.textContent = `Score : ${score} / ${totalQuestions} (${percentage}%)`;
 
       e.target.querySelector('button[type="submit"]').disabled = true;
