@@ -33,6 +33,22 @@
     <!-- Contenu principal -->
     <main class="main">
         <section class="carousel-ribbon" style="padding: 24px;">
+
+            <!-- ✅ BARRE DE RECHERCHE ICI -->
+            <section class="list-toolbar" style="padding: 0 0 12px;">
+                <input id="quizSearch" type="text" placeholder="Rechercher un quiz…" style="
+          width:100%;
+          max-width: 520px;
+          padding:10px 12px;
+          border:1px solid #cbd3df;
+          border-radius:8px;
+          font-size:0.95rem;
+          outline:none;
+          margin-bottom:12px;
+        " />
+            </section>
+
+            <!-- Grille de cartes -->
             <div id="cards-grid" class="track" style="flex-wrap: wrap; gap: var(--gap);"></div>
         </section>
     </main>
@@ -81,23 +97,27 @@
             const me = window.currentUser || null;
             const mode = window.pageMode;
 
+            // Normaliser pour comparaison (sans accents/maj)
+            const normalize = (s) =>
+                (s || "").toString().normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+
             const createCard = (quiz) => {
                 const card = document.createElement("div");
                 card.className = "quiz-card";
                 card.setAttribute("data-quiz-id", quiz.id);
                 card.innerHTML = `
-          <div class="thumb"></div>
-          <div class="title">${quiz.titre}</div>
-        `;
+      <div class="thumb"></div>
+      <div class="title">${quiz.titre}</div>
+    `;
 
-                // --- Cliquer sur la carte => aller au quiz
+                // Ouvrir le quiz
                 card.style.cursor = "pointer";
                 card.addEventListener("click", () => {
                     const back = (mode === "all") ? "?from=all" : (mode === "mine" ? "?from=mine" : "");
                     location.href = "/quizzes/" + encodeURIComponent(quiz.id) + back;
                 });
 
-                // --- Bouton Supprimer (fusion logique du carrousel)
+                // Bouton supprimer (si autorisé)
                 const canDelete =
                     quiz && quiz.id && quiz.id !== "#" &&
                     me &&
@@ -111,21 +131,16 @@
                     delBtn.type = "button";
                     delBtn.className = "btn-delete";
                     delBtn.textContent = "Supprimer";
-
                     delBtn.addEventListener("click", async (e) => {
                         e.stopPropagation();
-                        const ok = confirm("Supprimer ce quiz ?");
-                        if (!ok) return;
-
+                        if (!confirm("Supprimer ce quiz ?")) return;
                         try {
                             const resp = await fetch("/quizzes/" + encodeURIComponent(quiz.id), {
                                 method: "DELETE",
                                 headers: { "Content-Type": "application/json" },
                             });
-
-                            if (resp.ok) {
-                                card.remove();
-                            } else {
+                            if (resp.ok) card.remove();
+                            else {
                                 const msg = await resp.json().catch(() => ({}));
                                 alert(msg.message || "Suppression impossible");
                             }
@@ -146,32 +161,43 @@
                 const res = await fetch("/quizzes");
                 const quizzes = await res.json();
 
-                // Filtrage selon le mode (mine / all)
-                const idsToShow = [];
+                // Base selon le mode
+                let baseFiltered = [];
                 if (mode === "mine") {
                     if (me) {
-                        quizzes.forEach((q) => {
-                            if (String(q.ownerId || q.auteurId) === String(me.id)) idsToShow.push(String(q.id));
-                        });
+                        baseFiltered = quizzes.filter(
+                            (q) => String(q.ownerId || q.auteurId) === String(me.id)
+                        );
                     }
                 } else {
-                    quizzes.forEach((q) => idsToShow.push(String(q.id)));
+                    baseFiltered = quizzes.slice();
                 }
 
-                // Affichage
-                grid.innerHTML = "";
-                quizzes.forEach((q) => {
-                    if (idsToShow.includes(String(q.id))) {
-                        const card = createCard(q);
-                        grid.appendChild(card);
+                // Rendu
+                function render(list) {
+                    grid.innerHTML = "";
+                    if (!list.length) {
+                        const empty = document.createElement("div");
+                        empty.textContent = "Aucun quiz à afficher.";
+                        empty.style.color = "#fff";
+                        grid.appendChild(empty);
+                        return;
                     }
-                });
+                    list.forEach((q) => grid.appendChild(createCard(q)));
+                }
 
-                if (grid.children.length === 0) {
-                    const empty = document.createElement("div");
-                    empty.textContent = "Aucun quiz à afficher.";
-                    empty.style.color = "#fff";
-                    grid.appendChild(empty);
+                // Affichage initial
+                render(baseFiltered);
+
+                // Recherche live (début du titre)
+                const search = document.getElementById("quizSearch");
+                if (search) {
+                    search.addEventListener("input", () => {
+                        const term = normalize(search.value);
+                        if (!term) return render(baseFiltered);
+                        const subset = baseFiltered.filter((q) => normalize(q.titre).startsWith(term));
+                        render(subset);
+                    });
                 }
             } catch (err) {
                 console.error("Erreur chargement des quiz:", err);
@@ -182,6 +208,7 @@
             }
         });
     </script>
+
 </body>
 
 </html>
