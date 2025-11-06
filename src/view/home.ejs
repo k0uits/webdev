@@ -5,10 +5,16 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>WebQuizzer – Accueil</title>
-  <link rel="stylesheet" href="/home.css" />
+  <link rel="stylesheet" href="../home.css" />
 </head>
 
 <body>
+  <!-- Expose l'utilisateur connecté côté client -->
+  <script>
+    window.currentUser = JSON.parse('<%- JSON.stringify(user || null) %>');
+  </script>
+
+
   <aside class="side-nav">
     <div class="logo">WebQuizzer</div>
     <nav class="side-menu">
@@ -22,8 +28,6 @@
           <a href="/profile" class="side-link profile-link">
             👤 <span>Profil</span>
           </a>
-
-
     </nav>
 
     <div class="side-footer">
@@ -47,24 +51,18 @@
       const nom = localStorage.getItem("nom");
       const welcome = document.getElementById("welcome");
       const authBtn = document.getElementById("authButton");
+      const me = window.currentUser || null;
 
-      if (nom) {
-        // --- Affiche le nom et prépare le bouton Déconnexion ---
-        welcome.textContent = `Bonjour ${nom}`;
+      if (me) {
+        welcome.textContent = `Bonjour ${me.nom}`;
         authBtn.textContent = "Déconnexion";
         authBtn.href = "#";
 
         authBtn.onclick = async (e) => {
           e.preventDefault();
-
           try {
-            // Appel au backend pour détruire la session serveur
             await fetch("/logout", { method: "GET", credentials: "include" });
-
-            // Supprime le nom du localStorage (client)
             localStorage.removeItem("nom");
-
-            // Redirige vers la page d'accueil 
             window.location.href = "/";
           } catch (err) {
             console.error("Erreur de déconnexion :", err);
@@ -72,7 +70,6 @@
           }
         };
       } else {
-        // --- Si non connecté, affiche "Connexion" ---
         welcome.textContent = "";
         authBtn.textContent = "Connexion";
         authBtn.href = "/login";
@@ -80,7 +77,6 @@
       }
     });
   </script>
-
 
   <!-- CHARGEMENT DYNAMIQUE DES QUIZ -->
   <script>
@@ -90,10 +86,12 @@
       const track2 = document.querySelector(".track.clone");
       if (!track1) return;
 
+      const me = window.currentUser || null;
+
       const createCard = (quiz) => {
         const card = document.createElement("div");
         card.className = "quiz-card";
-        card.setAttribute('data-quiz-id', quiz.id);
+        card.setAttribute("data-quiz-id", quiz.id);
         card.innerHTML = `
           <div class="thumb"></div>
           <div class="title">${quiz.titre}</div>
@@ -104,39 +102,46 @@
           location.href = "/quizzes/" + encodeURIComponent(quiz.id);
         });
 
-        const controls = document.createElement("div");
-        controls.className = "card-controls";
-        
-        const delBtn = document.createElement("button");
-        delBtn.type = "button";
-        delBtn.className = "btn-delete";
-        delBtn.textContent = "Supprimer";
-        delBtn.addEventListener("click", async (e) => {
-          e.stopPropagation();
-          const ok = confirm("Supprimer ce quiz ?");
-          if (!ok) return;
+        // --- Afficher bouton Supprimer seulement pour l’auteur ou admin
+        const canDelete =
+          quiz && quiz.id && quiz.id !== "#" && me && (me.role === "admin" || String(me.id) === String(quiz.auteurId));
 
-          try {
-            const resp = await fetch("/quizzes/" + encodeURIComponent(quiz.id), {
-              method: "DELETE",
-              headers: { "Content-Type": "application/json" },
-            });
+        if (canDelete) {
+          const controls = document.createElement("div");
+          controls.className = "card-controls";
 
-            if (resp.ok) {
-              card.remove();
-              updateClone();
-            } else {
-              const msg = await resp.json().catch(() => ({}));
-              alert(msg.message || "Suppression impossible");
+          const delBtn = document.createElement("button");
+          delBtn.type = "button";
+          delBtn.className = "btn-delete";
+          delBtn.textContent = "Supprimer";
+          delBtn.addEventListener("click", async (e) => {
+            e.stopPropagation();
+            const ok = confirm("Supprimer ce quiz ?");
+            if (!ok) return;
+
+            try {
+              const resp = await fetch("/quizzes/" + encodeURIComponent(quiz.id), {
+                method: "DELETE",
+                headers: { "Content-Type": "application/json" },
+              });
+
+              if (resp.ok) {
+                card.remove();
+                updateClone();
+              } else {
+                const msg = await resp.json().catch(() => ({}));
+                alert(msg.message || "Suppression impossible");
+              }
+            } catch (err) {
+              console.error("Erreur suppression:", err);
+              alert("Erreur serveur pendant la suppression");
             }
-          } catch (err) {
-            console.error("Erreur suppression:", err);
-            alert("Erreur serveur pendant la suppression");
-          }
-        });
+          });
 
-        controls.appendChild(delBtn);
-        card.appendChild(controls);
+          controls.appendChild(delBtn);
+          card.appendChild(controls);
+        }
+
         return card;
       };
 
