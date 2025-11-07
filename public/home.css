@@ -1,11 +1,9 @@
-/* === RESET GLOBAL === */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
-/* === COULEURS & ESPACEMENTS === */
 :root {
   --c1: #55D5E0;
   --c2: #335F8A;
@@ -13,7 +11,6 @@
   --c4: #F6B12D;
   --c5: #F26619;
 
-  /* Échelle d'espacement */
   --s-1: 8px;
   --s-2: 12px;
   --s-3: 16px;
@@ -21,15 +18,11 @@
   --s-5: 32px;
   --s-6: 40px;
 
-  /* Tailles cartes */
   --card-w: 220px;
-  /* +20px */
   --thumb: 220px;
   --gap: 28px;
-  /* +6px */
 }
 
-/* === STRUCTURE DE BASE === */
 html,
 body {
   height: 100%;
@@ -40,13 +33,10 @@ body {
   background: linear-gradient(135deg, var(--c2) 0%, var(--c3) 100%);
   display: flex;
   line-height: 1.35;
-  /* + lisibilité */
 }
 
-/* === SIDEBAR === */
 .side-nav {
   width: 260px;
-  /* +20px */
   min-width: 260px;
   height: 100%;
   background: linear-gradient(180deg, var(--c3) 0%, var(--c2) 100%);
@@ -54,16 +44,13 @@ body {
   display: flex;
   flex-direction: column;
   padding: var(--s-5) var(--s-4);
-  /* + */
   box-shadow: 8px 0 24px rgba(0, 0, 0, 0.25);
   gap: 70px;
-  /* +10px */
 }
 
 .logo {
   font-weight: 800;
   font-size: 24px;
-  /* +2px */
   letter-spacing: 0.5px;
   color: var(--c1);
   text-align: center;
@@ -80,9 +67,7 @@ body {
 .side-link {
   display: block;
   padding: var(--s-3) var(--s-4);
-  /* + */
   border-radius: 14px;
-  /* + */
   color: #fff;
   text-decoration: none;
   transition: transform 0.15s ease, background 0.2s ease;
@@ -135,7 +120,6 @@ body {
   filter: brightness(1.1);
 }
 
-/* === CONTENU PRINCIPAL === */
 .main {
   flex: 1;
   min-width: 0;
@@ -147,7 +131,6 @@ body {
   /* + */
 }
 
-/* === CARROUSEL - VERSION CORRIGÉE === */
 .carousel-ribbon {
   width: 100%;
   background: #ffffff;
@@ -157,7 +140,6 @@ body {
   overflow: hidden;
   margin-top: var(--s-6);
   position: relative;
-  /* Contexte pour le positionnement */
 }
 
 .marquee {
@@ -173,7 +155,6 @@ body {
   gap: var(--gap);
   flex-shrink: 0;
   padding-left: var(--gap);
-  /* Padding au début de chaque piste */
 }
 
 @keyframes slide-left {
@@ -186,21 +167,16 @@ body {
   }
 }
 
-/* === CARTES QUIZ === */
 .quiz-card {
   flex: 0 0 var(--card-w);
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: var(--s-3);
-  /* + */
   background: #fff;
   border-radius: 18px;
-  /* + */
   padding: var(--s-4);
-  /* + */
   box-shadow: 0 8px 22px rgba(0, 0, 0, 0.12);
-  /* + */
   transition: transform 0.2s ease;
   cursor: pointer;
 }
@@ -219,7 +195,6 @@ body {
 
 .title {
   font-size: 17px;
-  /* +1px */
   font-weight: 700;
   color: var(--c3);
   text-align: center;
@@ -229,13 +204,10 @@ body {
   width: 100%;
 }
 
-/* === BOUTONS DE CONTROLE === */
 .card-controls {
   display: flex;
   gap: var(--s-2);
-  /* + */
   margin-top: var(--s-2);
-  /* + */
 }
 
 .btn-delete {
@@ -243,9 +215,7 @@ body {
   color: #fff;
   border: none;
   border-radius: 8px;
-  /* + */
   padding: 6px 10px;
-  /* + */
   cursor: pointer;
   transition: background 0.2s ease, transform 0.1s ease;
 }
@@ -255,18 +225,15 @@ body {
   transform: translateY(-1px);
 }
 
-/* === MESSAGE DE BIENVENUE === */
 #welcome {
   text-align: center;
   margin-bottom: var(--s-3);
   margin-top: -6px;
-  /* un peu moins négatif */
   font-weight: 600;
   color: #fff;
   font-size: 16px;
 }
 
-/* === ADAPTATION TABLETTES === */
 @media (max-width: 900px) {
   .side-nav {
     width: 220px;
@@ -288,7 +255,6 @@ body {
   }
 }
 
-/* === ADAPTATION MOBILE === */
 @media (max-width: 600px) {
   body {
     display: block;
@@ -309,7 +275,6 @@ body {
     overflow-x: auto;
   }
 
-  /* Carrousel manuel sur mobile */
   .marquee {
     animation: none;
     overflow-x: auto;
@@ -327,7 +292,6 @@ body {
   .quiz-card {
     flex: 0 0 82%;
     max-width: 340px;
-    /* + */
     scroll-snap-align: start;
     padding: var(--s-4);
   }

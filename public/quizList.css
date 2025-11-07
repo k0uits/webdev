@@ -1,0 +1,28 @@
+.list-toolbar {
+    padding: 0 0 12px;
+}
+
+#quizSearch {
+    width: 100%;
+    max-width: 520px;
+    padding: 10px 12px;
+    border: 1px solid #cbd3df;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    outline: none;
+    margin-bottom: 12px;
+    transition: border-color 0.3s ease;
+}
+
+#quizSearch:focus {
+    border-color: #F26619;
+}
+
+.carousel-ribbon {
+    padding: 24px;
+}
+
+#cards-grid {
+    flex-wrap: wrap;
+    gap: var(--gap);
+}

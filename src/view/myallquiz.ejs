@@ -4,9 +4,9 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>WebQuizzer – <%= mode==="mine" ? "Mes quiz" : "Tous les quiz" %>
-    </title>
+    <title>WebQuizzer – <%= mode==="mine" ? "Mes quiz" : "Tous les quiz" %></title>
     <link rel="stylesheet" href="/home.css" />
+    <link rel="stylesheet" href="/quizList.css" />
 </head>
 
 <body>
@@ -15,13 +15,13 @@
         <div class="logo">WebQuizzer</div>
         <nav class="side-menu">
             <a href="/" class="side-link">Accueil</a>
-            <a href="/quizzes/all" class="side-link <%= mode === " all" ? "active" : "" %>">Tous les quiz</a>
-            <a href="/quizzes/mine" class="side-link <%= mode === " mine" ? "active" : "" %>">Mes quiz</a>
+            <a href="/quizzes/all" class="side-link <%= mode === 'all' ? 'active' : '' %>">Tous les quiz</a>
+            <a href="/quizzes/mine" class="side-link <%= mode === 'mine' ? 'active' : '' %>">Mes quiz</a>
             <a href="/quizzes/new" class="side-link create">Créer</a>
             <% if (user && user.role==="admin" ) { %>
                 <a href="/admin" class="side-link create">Admin</a>
-                <% } %>
-                    <a href="/profile" class="side-link profile-link">👤 <span>Profil</span></a>
+            <% } %>
+            <a href="/profile" class="side-link profile-link">👤 <span>Profil</span></a>
         </nav>
 
         <div class="side-footer">
@@ -32,24 +32,15 @@
 
     <!-- Contenu principal -->
     <main class="main">
-        <section class="carousel-ribbon" style="padding: 24px;">
+        <section class="carousel-ribbon">
 
-            <!-- ✅ BARRE DE RECHERCHE ICI -->
-            <section class="list-toolbar" style="padding: 0 0 12px;">
-                <input id="quizSearch" type="text" placeholder="Rechercher un quiz…" style="
-          width:100%;
-          max-width: 520px;
-          padding:10px 12px;
-          border:1px solid #cbd3df;
-          border-radius:8px;
-          font-size:0.95rem;
-          outline:none;
-          margin-bottom:12px;
-        " />
+            <!-- Barre de recherche -->
+            <section class="list-toolbar">
+                <input id="quizSearch" type="text" placeholder="Rechercher un quiz…" />
             </section>
 
             <!-- Grille de cartes -->
-            <div id="cards-grid" class="track" style="flex-wrap: wrap; gap: var(--gap);"></div>
+            <div id="cards-grid" class="track"></div>
         </section>
     </main>
 
@@ -97,7 +88,6 @@
             const me = window.currentUser || null;
             const mode = window.pageMode;
 
-            // Normaliser pour comparaison (sans accents/maj)
             const normalize = (s) =>
                 (s || "").toString().normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 
@@ -106,18 +96,16 @@
                 card.className = "quiz-card";
                 card.setAttribute("data-quiz-id", quiz.id);
                 card.innerHTML = `
-      <div class="thumb"></div>
-      <div class="title">${quiz.titre}</div>
-    `;
+                    <div class="thumb"></div>
+                    <div class="title">${quiz.titre}</div>
+                `;
 
-                // Ouvrir le quiz
                 card.style.cursor = "pointer";
                 card.addEventListener("click", () => {
                     const back = (mode === "all") ? "?from=all" : (mode === "mine" ? "?from=mine" : "");
                     location.href = "/quizzes/" + encodeURIComponent(quiz.id) + back;
                 });
 
-                // Bouton supprimer (si autorisé)
                 const canDelete =
                     quiz && quiz.id && quiz.id !== "#" &&
                     me &&
@@ -161,7 +149,6 @@
                 const res = await fetch("/quizzes");
                 const quizzes = await res.json();
 
-                // Base selon le mode
                 let baseFiltered = [];
                 if (mode === "mine") {
                     if (me) {
@@ -173,7 +160,6 @@
                     baseFiltered = quizzes.slice();
                 }
 
-                // Rendu
                 function render(list) {
                     grid.innerHTML = "";
                     if (!list.length) {
@@ -186,10 +172,8 @@
                     list.forEach((q) => grid.appendChild(createCard(q)));
                 }
 
-                // Affichage initial
                 render(baseFiltered);
 
-                // Recherche live (début du titre)
                 const search = document.getElementById("quizSearch");
                 if (search) {
                     search.addEventListener("input", () => {
