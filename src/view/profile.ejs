@@ -3,172 +3,192 @@
 
 <head>
     <meta charset="UTF-8" />
-    <title>Profil utilisateur</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mon Profil - Quiz App</title>
     <link rel="stylesheet" href="/home.css" />
-    <style>
-        body {
-            background: #2b4a64;
-            font-family: Arial, sans-serif;
-            color: #fff;
-            display: flex;
-            justify-content: center;
-        }
-
-        .card {
-            width: min(900px, 95vw);
-            background: #1f3548;
-            padding: 28px;
-            margin: 36px 0;
-            border-radius: 16px;
-            box-shadow: 0 10px 24px rgba(0, 0, 0, .25);
-        }
-
-        h1,
-        h2 {
-            margin: 0 0 16px 0;
-        }
-
-        .info {
-            margin: 6px 0;
-        }
-
-        .row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 24px;
-        }
-
-        form {
-            background: #27455e;
-            border-radius: 12px;
-            padding: 16px;
-        }
-
-        label {
-            display: block;
-            font-size: 14px;
-            margin: 8px 0 4px;
-            opacity: .9;
-        }
-
-        input {
-            width: 100%;
-            padding: 10px 12px;
-            border-radius: 8px;
-            border: 0;
-            outline: none;
-        }
-
-        .actions {
-            margin-top: 12px;
-            display: flex;
-            gap: 8px;
-        }
-
-        .btn {
-            background: #5bbd72;
-            color: #072;
-            font-weight: 600;
-            border: 0;
-            padding: 10px 14px;
-            border-radius: 10px;
-            cursor: pointer;
-        }
-
-        .btn.secondary {
-            background: #3ea1f4;
-            color: #003;
-        }
-
-        .btn.danger {
-            background: #f34d4d;
-            color: #300;
-        }
-
-        .message {
-            margin-bottom: 12px;
-            padding: 10px 12px;
-            background: #133045;
-            border-left: 4px solid #5bbd72;
-            border-radius: 6px;
-        }
-
-        a.link {
-            color: #bfe1ff;
-            text-decoration: underline;
-        }
-    </style>
+    <link rel="stylesheet" href="/profile.css" />
 </head>
 
 <body>
-    <div class="card">
-        <h1>Mon profil</h1>
+    <script>
+        window.currentUser = JSON.parse('<%- JSON.stringify(user || null) %>');
+    </script>
 
-        <% if (typeof message !=="undefined" && message) { %>
-            <div class="message">
-                <%= message %>
-            </div>
+    <aside class="side-nav">
+        <div class="logo">WebQuizzer</div>
+        <nav class="side-menu">
+            <a href="/" class="side-link">Accueil</a>
+            <a href="/quizzes/all" class="side-link">Tous les quiz</a>
+            <a href="/quizzes/mine" class="side-link">Mes quiz</a>
+            <a href="/quizzes/new" class="side-link create">Créer</a>
+            <% if (user && user.role==="admin" ) { %>
+                <a href="/admin" class="side-link create">Admin</a>
             <% } %>
+            <a href="/profile" class="side-link profile-link active">
+                👤 <span>Profil</span>
+            </a>
+        </nav>
 
-                <% if (user) { %>
-                    <div class="info"><strong>Identifiant :</strong>
-                        <%= user.id %>
-                    </div>
-                    <div class="info"><strong>Rôle :</strong>
-                        <%= user.role || "user" %>
-                    </div>
+        <div class="side-footer">
+            <p id="welcome"></p>
+            <a href="/login" id="authButton" class="btn-side-login">Connexion</a>
+        </div>
+    </aside>
 
-                    <div class="row" style="margin-top:16px;">
-                        <!-- A) Mettre à jour nom + email -->
-                        <form method="POST" action="/profile/update" autocomplete="on">
-                            <h2>Informations</h2>
-                            <label for="nom">Nom</label>
-                            <input id="nom" name="nom" type="text" value="<%= user.nom %>" required />
-                            <label for="email">Email</label>
-                            <input id="email" name="email" type="email" value="<%= user.email %>" required />
-                            <div class="actions">
-                                <button class="btn" type="submit">Mettre à jour</button>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const welcome = document.getElementById("welcome");
+            const authBtn = document.getElementById("authButton");
+            const me = window.currentUser || null;
+
+            if (me) {
+                welcome.textContent = `Bonjour ${me.nom}`;
+                authBtn.textContent = "Déconnexion";
+                authBtn.href = "#";
+
+                authBtn.onclick = async (e) => {
+                    e.preventDefault();
+                    try {
+                        await fetch("/logout", { method: "GET", credentials: "include" });
+                        localStorage.removeItem("nom");
+                        window.location.href = "/";
+                    } catch (err) {
+                        console.error("Erreur de déconnexion :", err);
+                        alert("Erreur lors de la déconnexion !");
+                    }
+                };
+            } else {
+                welcome.textContent = "";
+                authBtn.textContent = "Connexion";
+                authBtn.href = "/login";
+                authBtn.onclick = null;
+            }
+        });
+    </script>
+
+    <div class="main">
+        <div class="page-header">
+            <h1>Mon Profil</h1>
+            <p class="subtitle">Gérez vos informations personnelles et paramètres de compte</p>
+        </div>
+
+        <div class="profile-container">
+            <% if (typeof message !=="undefined" && message) { %>
+                <div class="flash-message">
+                    <%= message %>
+                </div>
+                <% } %>
+
+                    <% if (user) { %>
+                        <div class="info-card">
+                            <h2>Informations du compte</h2>
+                            <div class="info-row">
+                                <span class="info-label">Identifiant :</span>
+                                <span class="info-value">#<%= user.id %></span>
                             </div>
-                        </form>
-
-                        <!-- B) Changer le mot de passe -->
-                        <form method="POST" action="/profile/password" autocomplete="off">
-                            <h2>Mot de passe</h2>
-                            <label for="currentPassword">Mot de passe actuel</label>
-                            <input id="currentPassword" name="currentPassword" type="password" required />
-                            <label for="newPassword">Nouveau mot de passe</label>
-                            <input id="newPassword" name="newPassword" type="password" minlength="6" required />
-                            <label for="confirmPassword">Confirmer le nouveau mot de passe</label>
-                            <input id="confirmPassword" name="confirmPassword" type="password" minlength="6" required />
-                            <div class="actions">
-                                <button class="btn secondary" type="submit">Modifier le mot de passe</button>
+                            <div class="info-row">
+                                <span class="info-label">Nom :</span>
+                                <span class="info-value"><%= user.nom %></span>
                             </div>
-                        </form>
-                    </div>
-
-                    <!-- C) Supprimer le compte -->
-                    <form method="POST" action="/profile/delete" onsubmit="return confirmDelete();"
-                        style="margin-top:24px;">
-                        <h2>Supprimer mon compte</h2>
-                        <p>Action irréversible. Tapez <code>DELETE</code> et entrez votre mot de passe pour confirmer.
-                        </p>
-                        <label for="confirm">Confirmation</label>
-                        <input id="confirm" name="confirm" type="text" placeholder="DELETE" required />
-                        <label for="password">Mot de passe</label>
-                        <input id="password" name="password" type="password" required />
-                        <div class="actions">
-                            <button class="btn danger" type="submit">Supprimer définitivement</button>
-                            <a class="link" href="/">Annuler</a>
+                            <div class="info-row">
+                                <span class="info-label">Email :</span>
+                                <span class="info-value"><%= user.email %></span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Rôle :</span>
+                                <span class="info-value">
+                                    <span class="badge <%= user.role==='admin' ? 'badge-admin' : 'badge-user' %>">
+                                        <%= user.role==='admin' ? 'Administrateur' : 'Utilisateur' %>
+                                    </span>
+                                </span>
+                            </div>
                         </div>
-                    </form>
-                    <% } else { %>
-                        <p>Vous n’êtes pas connecté. <a class="link" href="/login">Se connecter</a></p>
-                        <% } %>
+
+                        <div class="forms-grid">
+                            <div class="form-card">
+                                <h2>Modifier mes informations</h2>
+                                <form method="POST" action="/profile/update" autocomplete="on">
+                                    <div class="form-group">
+                                        <label for="nom">Nom complet</label>
+                                        <input id="nom" name="nom" type="text" value="<%= user.nom %>" required placeholder="Votre nom" />
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="email">Adresse email</label>
+                                        <input id="email" name="email" type="email" value="<%= user.email %>" required placeholder="votre@email.com" />
+                                    </div>
+                                    <div class="form-actions">
+                                        <button class="btn btn-primary" type="submit">Enregistrer</button>
+                                    </div>
+                                </form>
+                            </div>
+
+                            <div class="form-card">
+                                <h2>Changer mon mot de passe</h2>
+                                <form method="POST" action="/profile/password" autocomplete="off">
+                                    <div class="form-group">
+                                        <label for="currentPassword">Mot de passe actuel</label>
+                                        <input id="currentPassword" name="currentPassword" type="password" required placeholder="••••••••" />
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="newPassword">Nouveau mot de passe</label>
+                                        <input id="newPassword" name="newPassword" type="password" minlength="6" required placeholder="••••••••" />
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="confirmPassword">Confirmer le nouveau mot de passe</label>
+                                        <input id="confirmPassword" name="confirmPassword" type="password" minlength="6" required placeholder="••••••••" />
+                                    </div>
+                                    <div class="form-actions">
+                                        <button class="btn btn-secondary" type="submit">Modifier</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+                        <div class="danger-zone">
+                            <h2>⚠️ Zone de danger</h2>
+                            <div class="warning-text">
+                                <strong>⚠️ Attention :</strong> La suppression de votre compte est
+                                <strong>irréversible</strong>.
+                                Toutes vos données, quiz et historique seront définitivement perdus. Tapez
+                                <code>DELETE</code> et entrez votre mot de passe pour confirmer cette action.
+                            </div>
+                            <form method="POST" action="/profile/delete" onsubmit="return confirmDelete();">
+                                <div class="form-group">
+                                    <label for="confirm">Tapez DELETE pour confirmer</label>
+                                    <input id="confirm" name="confirm" type="text" placeholder="DELETE" required />
+                                </div>
+                                <div class="form-group">
+                                    <label for="password">Votre mot de passe</label>
+                                    <input id="password" name="password" type="password" required placeholder="••••••••" />
+                                </div>
+                                <div class="form-actions">
+                                    <button class="btn btn-danger" type="submit">Supprimer définitivement mon compte</button>
+                                    <a class="link" href="/">Annuler</a>
+                                </div>
+                            </form>
+                        </div>
+                        <% } else { %>
+                            <div class="not-logged-in">
+                                <h2>Accès restreint</h2>
+                                <p>Vous devez être connecté pour accéder à votre profil.</p>
+                                <a href="/login" class="btn btn-primary">Se connecter</a>
+                            </div>
+                            <% } %>
+        </div>
     </div>
 
     <script>
         function confirmDelete() {
-            return confirm("Confirmer la suppression définitive de votre compte ?");
+            return confirm("⚠️ ATTENTION ⚠️\n\nÊtes-vous absolument sûr de vouloir supprimer définitivement votre compte ?\n\nCette action est IRRÉVERSIBLE et entraînera la perte de toutes vos données.\n\nCliquez sur OK pour confirmer la suppression.");
+        }
+
+        const flashMessage = document.querySelector('.flash-message');
+        if (flashMessage) {
+            setTimeout(() => {
+                flashMessage.style.opacity = '0';
+                flashMessage.style.transition = 'opacity 0.5s ease';
+                setTimeout(() => flashMessage.remove(), 500);
+            }, 5000);
         }
     </script>
 </body>

@@ -3,389 +3,151 @@
 
 <head>
     <meta charset="UTF-8" />
-    <title>WebQuizzer — Administration</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WebQuizzer – Administration</title>
     <link rel="stylesheet" href="/home.css" />
-    <style>
-        /* ---- Harmonisation avec la page d'accueil ---- */
-        body {
-            background-color: #f6f8fc;
-            color: #222;
-            font-family: 'Inter', 'Segoe UI', Roboto, sans-serif;
-            margin: 0;
-            padding: 0;
-        }
-
-        .admin-wrap {
-            max-width: 1100px;
-            margin: 50px auto;
-            background: #fff;
-            border-radius: 12px;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-            padding: 24px 30px;
-        }
-
-        h1 {
-            margin-top: 0;
-            text-align: center;
-            color: #1d3557;
-            font-weight: 700;
-            font-size: 1.8rem;
-        }
-
-        .back {
-            display: inline-block;
-            margin-bottom: 10px;
-            color: #1d3557;
-            text-decoration: none;
-            font-weight: 500;
-            transition: opacity .2s;
-        }
-
-        .back:hover {
-            opacity: 0.7;
-        }
-
-        .flash {
-            background: #dff0d8;
-            color: #2d572c;
-            border-radius: 6px;
-            padding: 10px 16px;
-            margin: 15px 0;
-            text-align: center;
-            font-weight: 500;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            border-radius: 8px;
-            overflow: hidden;
-        }
-
-        th,
-        td {
-            padding: 12px 14px;
-            border-bottom: 1px solid #e4e6eb;
-            text-align: left;
-        }
-
-        thead {
-            background: #f2f4f8;
-            color: #444;
-            font-weight: 600;
-        }
-
-        tr:hover td {
-            background: #f9fafc;
-        }
-
-        .edit-form {
-            display: grid;
-            grid-template-columns: 1.3fr 1.6fr 1fr auto;
-            gap: 10px;
-            align-items: center;
-        }
-
-        input[type="text"],
-        input[type="password"],
-        select {
-            border: 1px solid #cbd3df;
-            border-radius: 6px;
-            padding: 8px 10px;
-            font-size: 0.95rem;
-            outline: none;
-            transition: border-color .2s, box-shadow .2s;
-        }
-
-        input:focus,
-        select:focus {
-            border-color: #4a90e2;
-            box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
-        }
-
-        .btn,
-        .save,
-        .danger,
-        .ghost {
-            border: none;
-            padding: 8px 12px;
-            border-radius: 6px;
-            font-weight: 600;
-            cursor: pointer;
-            font-size: 0.9rem;
-            transition: background .2s, transform .05s;
-        }
-
-        .save,
-        .btn {
-            background-color: #4a90e2;
-            color: white;
-        }
-
-        .save:hover,
-        .btn:hover {
-            background-color: #3b7bd6;
-            transform: translateY(-1px);
-        }
-
-        .danger {
-            background-color: #e74c3c;
-            color: #fff;
-        }
-
-        .danger:hover {
-            background-color: #d63d2e;
-        }
-
-        .ghost {
-            background: #f2f4f8;
-            color: #333;
-        }
-
-        .ghost:hover {
-            background: #e4e7eb;
-        }
-
-        .actions {
-            display: flex;
-            gap: 8px;
-            justify-content: flex-end;
-        }
-
-        .no-users {
-            text-align: center;
-            color: #777;
-            padding: 18px 0;
-        }
-
-        /* ---- Modal ---- */
-        .modal {
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.35);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 50;
-        }
-
-        .modal.open {
-            display: flex;
-        }
-
-        .modal-card {
-            background: #fff;
-            border-radius: 10px;
-            width: 400px;
-            max-width: 90%;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
-            overflow: hidden;
-            animation: pop .15s ease-out;
-        }
-
-        @keyframes pop {
-            from {
-                transform: scale(.96);
-                opacity: 0;
-            }
-
-            to {
-                transform: scale(1);
-                opacity: 1;
-            }
-        }
-
-        .modal-head {
-            background: #f2f4f8;
-            padding: 12px 16px;
-            border-bottom: 1px solid #e1e5ea;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .modal-title {
-            font-weight: 600;
-            color: #1d3557;
-        }
-
-        .modal-body {
-            padding: 18px;
-            display: grid;
-            gap: 12px;
-        }
-
-        .modal-actions {
-            display: flex;
-            justify-content: flex-end;
-            padding: 12px 16px;
-            border-top: 1px solid #e1e5ea;
-            background: #f8f9fb;
-            gap: 10px;
-        }
-
-        .label {
-            font-size: 0.9rem;
-            color: #333;
-        }
-
-        .hint {
-            font-size: 0.8rem;
-            color: #777;
-        }
-
-        .input-wrap {
-            position: relative;
-        }
-
-        .toggle-eye {
-            position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            border: none;
-            background: transparent;
-            color: #4a90e2;
-            cursor: pointer;
-        }
-    </style>
+    <link rel="stylesheet" href="/admin.css" />
 </head>
 
 <body>
-    <div class="admin-wrap">
-        <a href="/" class="back">← Retour à l’accueil</a>
-        <h1>Administration — Utilisateurs</h1>
+    <aside class="side-nav">
+        <div class="logo">WebQuizzer</div>
+        <nav class="side-menu">
+            <a href="/" class="side-link">Accueil</a>
+            <a href="/quizzes/all" class="side-link">Tous les quiz</a>
+            <a href="/quizzes/mine" class="side-link">Mes quiz</a>
+            <a href="/quizzes/new" class="side-link create">Créer</a>
+            <a href="/admin" class="side-link create active">Admin</a>
+            <a href="/profile" class="side-link profile-link">👤 <span>Profil</span></a>
+        </nav>
+        <div class="side-footer">
+            <p id="welcome"></p>
+            <a href="/login" id="authButton" class="btn-side-login">Connexion</a>
+        </div>
+    </aside>
+
+    <main class="main">
+        <div class="page-header">
+            <h1>Administration</h1>
+            <p class="subtitle">Gérez les utilisateurs de la plateforme</p>
+        </div>
 
         <% if (message) { %>
-            <div class="flash">
-                <%= message %>
-            </div>
-            <% } %>
+            <div class="flash"><%= message %></div>
+        <% } %>
 
-                <table>
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th colspan="3">Profil</th>
-                            <th style="width:240px;">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <% if (users && users.length) { %>
-                            <% users.forEach(u=> { %>
-                                <tr>
-                                    <td><strong>#<%= u.id %></strong></td>
-                                    <td colspan="3">
-                                        <form method="POST" action="/admin/users/<%= u.id %>/update" class="edit-form"
-                                            onsubmit="return confirm('Confirmer la modification de <%= u.nom %> ?');">
-                                            <input type="text" name="nom" value="<%= u.nom %>" required />
-                                            <input type="text" name="email" value="<%= u.email %>" required />
-                                            <select name="role" required>
-                                                <option value="user" <%=u.role==='user' ? 'selected' : '' %>>user
-                                                </option>
-                                                <option value="admin" <%=u.role==='admin' ? 'selected' : '' %>>admin
-                                                </option>
-                                            </select>
-                                            <button type="submit" class="save">Enregistrer</button>
+        <div class="admin-table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nom</th>
+                        <th>Email</th>
+                        <th>Rôle</th>
+                        <th style="width:200px;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (users && users.length) { %>
+                        <% users.forEach(u => { %>
+                            <tr>
+                                <td><strong>#<%= u.id %></strong></td>
+                                <td><%= u.nom %></td>
+                                <td><%= u.email %></td>
+                                <td>
+                                    <span class="badge <%= u.role === 'admin' ? 'badge-admin' : 'badge-user' %>">
+                                        <%= u.role %>
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="actions">
+                                        <button class="btn-edit" data-open-modal="edit-<%= u.id %>">Modifier</button>
+                                        <form method="POST" action="/admin/users/<%= u.id %>/delete" 
+                                              onsubmit="return confirm('Supprimer <%= u.nom %> ?');">
+                                            <button class="btn-delete" type="submit">Supprimer</button>
                                         </form>
-                                    </td>
-                                    <td>
-                                        <div class="actions">
-                                            <button class="btn" data-open-modal="pwd-modal-<%= u.id %>">Changer
-                                                MDP</button>
-                                            <form method="POST" action="/admin/users/<%= u.id %>/delete"
-                                                onsubmit="return confirm('Supprimer <%= u.nom %> ?');">
-                                                <button class="danger" type="submit">Supprimer</button>
+                                    </div>
+
+                                    <div class="modal" id="edit-<%= u.id %>">
+                                        <div class="modal-card">
+                                            <div class="modal-head">
+                                                <div class="modal-title">Modifier <%= u.nom %></div>
+                                                <button class="btn-close" data-close-modal="edit-<%= u.id %>">✕</button>
+                                            </div>
+                                            <form method="POST" action="/admin/users/<%= u.id %>/update" 
+                                                  onsubmit="return confirm('Confirmer la modification ?');">
+                                                <div class="modal-body">
+                                                    <div class="form-group">
+                                                        <label>Nom</label>
+                                                        <input type="text" name="nom" value="<%= u.nom %>" required />
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label>Email</label>
+                                                        <input type="email" name="email" value="<%= u.email %>" required />
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label>Rôle</label>
+                                                        <select name="role" required>
+                                                            <option value="user" <%= u.role === 'user' ? 'selected' : '' %>>User</option>
+                                                            <option value="admin" <%= u.role === 'admin' ? 'selected' : '' %>>Admin</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-actions">
+                                                    <button type="button" class="btn-cancel" data-close-modal="edit-<%= u.id %>">Annuler</button>
+                                                    <button type="submit" class="btn-save">Enregistrer</button>
+                                                </div>
                                             </form>
                                         </div>
-
-                                        <!-- Modal changement mot de passe -->
-                                        <div class="modal" id="pwd-modal-<%= u.id %>">
-                                            <div class="modal-card">
-                                                <div class="modal-head">
-                                                    <div class="modal-title">Changer le mot de passe — <%= u.nom %>
-                                                    </div>
-                                                    <button class="ghost"
-                                                        data-close-modal="pwd-modal-<%= u.id %>">✕</button>
-                                                </div>
-                                                <form method="POST" action="/admin/users/<%= u.id %>/password"
-                                                    class="modal-body">
-                                                    <div class="label">Nouveau mot de passe</div>
-                                                    <div class="input-wrap">
-                                                        <input type="password" name="password" id="pwd-<%= u.id %>"
-                                                            minlength="6" required />
-                                                        <button type="button" class="toggle-eye"
-                                                            data-toggle="#pwd-<%= u.id %>">👁️</button>
-                                                    </div>
-                                                    <div class="label">Confirmer le mot de passe</div>
-                                                    <div class="input-wrap">
-                                                        <input type="password" name="passwordConfirm"
-                                                            id="pwdc-<%= u.id %>" minlength="6" required />
-                                                        <button type="button" class="toggle-eye"
-                                                            data-toggle="#pwdc-<%= u.id %>">👁️</button>
-                                                    </div>
-                                                    <div class="hint">Le mot de passe doit comporter au moins 6
-                                                        caractères.</div>
-                                                    <div class="modal-actions">
-                                                        <button type="button" class="ghost"
-                                                            data-close-modal="pwd-modal-<%= u.id %>">Annuler</button>
-                                                        <button type="submit" class="save">Changer</button>
-                                                    </div>
-                                                </form>
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <% }) %>
-                                    <% } else { %>
-                                        <tr>
-                                            <td colspan="5" class="no-users">Aucun utilisateur trouvé.</td>
-                                        </tr>
-                                        <% } %>
-                    </tbody>
-                </table>
-    </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    <% } else { %>
+                        <tr>
+                            <td colspan="5" class="no-users">Aucun utilisateur trouvé.</td>
+                        </tr>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+    </main>
 
     <script>
-        // --- Flash message auto-hide
+        const me = <%- JSON.stringify(user || null) %>;
+
+        const welcome = document.getElementById("welcome");
+        const authBtn = document.getElementById("authButton");
+        if (me) {
+            welcome.textContent = "Bonjour " + me.nom;
+            authBtn.textContent = "Déconnexion";
+            authBtn.href = "#";
+            authBtn.onclick = async (e) => {
+                e.preventDefault();
+                await fetch("/logout", { credentials: "include" });
+                location.href = "/";
+            };
+        }
+
         setTimeout(() => {
             const msg = document.querySelector('.flash');
-            if (msg) msg.style.display = 'none';
+            if (msg) msg.style.opacity = '0';
+            setTimeout(() => { if (msg) msg.style.display = 'none'; }, 300);
         }, 3000);
 
-        // --- Toggle modals
         document.addEventListener('click', e => {
             const open = e.target.closest('[data-open-modal]');
             const close = e.target.closest('[data-close-modal]');
             if (open) {
                 const id = open.getAttribute('data-open-modal');
-                const m = document.getElementById(id);
-                if (m) m.classList.add('open');
+                document.getElementById(id)?.classList.add('open');
             }
             if (close) {
                 const id = close.getAttribute('data-close-modal');
-                const m = document.getElementById(id);
-                if (m) m.classList.remove('open');
+                document.getElementById(id)?.classList.remove('open');
             }
         });
 
-        // --- Toggle password visibility
-        document.querySelectorAll('.toggle-eye').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const target = btn.getAttribute('data-toggle');
-                const input = target ? document.querySelector(target) : null;
-                if (!input) return;
-                if (input.type === 'password') {
-                    input.type = 'text';
-                    btn.textContent = '🙈';
-                } else {
-                    input.type = 'password';
-                    btn.textContent = '👁️';
-                }
-            });
-        });
-
-        // --- Close modal on background click
         document.querySelectorAll('.modal').forEach(m => {
             m.addEventListener('click', e => {
                 if (e.target === m) m.classList.remove('open');
