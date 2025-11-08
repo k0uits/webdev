@@ -133,3 +133,29 @@
     border-color: #dc3545 !important;
     background: #f8d7da !important;
 }
+
+.choice-label.correct-answer {
+    border-color: #28a745 !important;
+    background: #d4edda !important;
+}
+
+.choice-label.wrong-answer {
+    border-color: #dc3545 !important;
+    background: #f8d7da !important;
+}
+
+.choice-label.correct-answer::after {
+    content: "✓";
+    color: #28a745;
+    font-weight: bold;
+    margin-left: auto;
+    font-size: 20px;
+}
+
+.choice-label.wrong-answer::after {
+    content: "✗";
+    color: #dc3545;
+    font-weight: bold;
+    margin-left: auto;
+    font-size: 20px;
+}

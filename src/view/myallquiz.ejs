@@ -1,198 +1,99 @@
 <!DOCTYPE html>
 <html lang="fr">
-
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>WebQuizzer – <%= mode==="mine" ? "Mes quiz" : "Tous les quiz" %></title>
+    <title>WebQuizzer – Tous les quiz</title>
+    <link rel="stylesheet" href="/allquiz.css" />
     <link rel="stylesheet" href="/home.css" />
-    <link rel="stylesheet" href="/quizList.css" />
 </head>
-
 <body>
-    <!-- Barre latérale -->
     <aside class="side-nav">
         <div class="logo">WebQuizzer</div>
         <nav class="side-menu">
             <a href="/" class="side-link">Accueil</a>
-            <a href="/quizzes/all" class="side-link <%= mode === 'all' ? 'active' : '' %>">Tous les quiz</a>
-            <a href="/quizzes/mine" class="side-link <%= mode === 'mine' ? 'active' : '' %>">Mes quiz</a>
+            <a href="/quizzes/all" class="side-link active">Tous les quiz</a>
+            <a href="/quizzes/mine" class="side-link">Mes quiz</a>
             <a href="/quizzes/new" class="side-link create">Créer</a>
-            <% if (user && user.role==="admin" ) { %>
+            <% if (user && user.role==="admin") { %>
                 <a href="/admin" class="side-link create">Admin</a>
             <% } %>
             <a href="/profile" class="side-link profile-link">👤 <span>Profil</span></a>
         </nav>
-
         <div class="side-footer">
             <p id="welcome"></p>
             <a href="/login" id="authButton" class="btn-side-login">Connexion</a>
         </div>
     </aside>
 
-    <!-- Contenu principal -->
     <main class="main">
-        <section class="carousel-ribbon">
+        <div class="page-header">
+            <h1>🌐 Tous les quiz</h1>
+            <p class="subtitle">Découvrez tous les quiz disponibles</p>
+        </div>
 
-            <!-- Barre de recherche -->
-            <section class="list-toolbar">
-                <input id="quizSearch" type="text" placeholder="Rechercher un quiz…" />
-            </section>
+        <div class="search-container">
+            <input id="quizSearch" type="text" class="search-input" placeholder="🔍 Rechercher un quiz..." />
+        </div>
 
-            <!-- Grille de cartes -->
-            <div id="cards-grid" class="track"></div>
-        </section>
+        <div id="cards-grid" class="quiz-grid"></div>
+
+        <div id="empty-state" class="empty-state" style="display: none;">
+            <div class="empty-state-icon">📭</div>
+            <h2>Aucun quiz disponible</h2>
+        </div>
     </main>
 
-    <!-- Données serveur exposées -->
     <script>
-        window.currentUser = JSON.parse('<%- JSON.stringify(user || null) %>');
-        window.pageMode = "<%= mode %>";
-    </script>
+        const me = <%- JSON.stringify(user || null) %>;
+        let allQuizzes = [];
 
-    <!-- Gestion connexion / déconnexion -->
-    <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            const welcome = document.getElementById("welcome");
-            const authBtn = document.getElementById("authButton");
-            const me = window.currentUser || null;
+        const welcome = document.getElementById("welcome");
+        const authBtn = document.getElementById("authButton");
+        if (me) {
+            welcome.textContent = "Bonjour " + me.nom;
+            authBtn.textContent = "Déconnexion";
+            authBtn.href = "#";
+            authBtn.onclick = async (e) => {
+                e.preventDefault();
+                await fetch("/logout", { credentials: "include" });
+                location.href = "/";
+            };
+        }
 
-            if (me) {
-                welcome.textContent = "Bonjour " + me.nom;
-                authBtn.textContent = "Déconnexion";
-                authBtn.href = "#";
-                authBtn.onclick = async (e) => {
-                    e.preventDefault();
-                    try {
-                        await fetch("/logout", { method: "GET", credentials: "include" });
-                        window.location.href = "/";
-                    } catch (err) {
-                        alert("Erreur lors de la déconnexion !");
-                    }
-                };
-            } else {
-                welcome.textContent = "";
-                authBtn.textContent = "Connexion";
-                authBtn.href = "/login";
-                authBtn.onclick = null;
+        const grid = document.getElementById("cards-grid");
+        const empty = document.getElementById("empty-state");
+
+        function renderQuizzes(quizzes) {
+            grid.innerHTML = "";
+
+            if (quizzes.length === 0) {
+                empty.style.display = "block";
+                return;
             }
-        });
-    </script>
 
-    <!-- Affichage des quiz + suppression -->
-    <script>
-        document.addEventListener("DOMContentLoaded", async () => {
-            const grid = document.getElementById("cards-grid");
-            if (!grid) return;
-
-            const me = window.currentUser || null;
-            const mode = window.pageMode;
-
-            const normalize = (s) =>
-                (s || "").toString().normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-
-            const createCard = (quiz) => {
+            empty.style.display = "none";
+            quizzes.forEach(q => {
                 const card = document.createElement("div");
                 card.className = "quiz-card";
-                card.setAttribute("data-quiz-id", quiz.id);
-                card.innerHTML = `
-                    <div class="thumb"></div>
-                    <div class="title">${quiz.titre}</div>
-                `;
+                card.innerHTML = `<div class="thumb"></div><div class="title">${q.titre}</div>`;
+                card.onclick = () => location.href = "/quizzes/" + q.id;
+                grid.appendChild(card);
+            });
+        }
 
-                card.style.cursor = "pointer";
-                card.addEventListener("click", () => {
-                    const back = (mode === "all") ? "?from=all" : (mode === "mine" ? "?from=mine" : "");
-                    location.href = "/quizzes/" + encodeURIComponent(quiz.id) + back;
-                });
+        fetch("/quizzes")
+            .then(r => r.json())
+            .then(quizzes => {
+                allQuizzes = quizzes;
+                renderQuizzes(allQuizzes);
 
-                const canDelete =
-                    quiz && quiz.id && quiz.id !== "#" &&
-                    me &&
-                    (me.role === "admin" || String(me.id) === String(quiz.auteurId || quiz.ownerId));
-
-                if (canDelete) {
-                    const controls = document.createElement("div");
-                    controls.className = "card-controls";
-
-                    const delBtn = document.createElement("button");
-                    delBtn.type = "button";
-                    delBtn.className = "btn-delete";
-                    delBtn.textContent = "Supprimer";
-                    delBtn.addEventListener("click", async (e) => {
-                        e.stopPropagation();
-                        if (!confirm("Supprimer ce quiz ?")) return;
-                        try {
-                            const resp = await fetch("/quizzes/" + encodeURIComponent(quiz.id), {
-                                method: "DELETE",
-                                headers: { "Content-Type": "application/json" },
-                            });
-                            if (resp.ok) card.remove();
-                            else {
-                                const msg = await resp.json().catch(() => ({}));
-                                alert(msg.message || "Suppression impossible");
-                            }
-                        } catch (err) {
-                            console.error("Erreur suppression:", err);
-                            alert("Erreur serveur pendant la suppression");
-                        }
-                    });
-
-                    controls.appendChild(delBtn);
-                    card.appendChild(controls);
-                }
-
-                return card;
-            };
-
-            try {
-                const res = await fetch("/quizzes");
-                const quizzes = await res.json();
-
-                let baseFiltered = [];
-                if (mode === "mine") {
-                    if (me) {
-                        baseFiltered = quizzes.filter(
-                            (q) => String(q.ownerId || q.auteurId) === String(me.id)
-                        );
-                    }
-                } else {
-                    baseFiltered = quizzes.slice();
-                }
-
-                function render(list) {
-                    grid.innerHTML = "";
-                    if (!list.length) {
-                        const empty = document.createElement("div");
-                        empty.textContent = "Aucun quiz à afficher.";
-                        empty.style.color = "#fff";
-                        grid.appendChild(empty);
-                        return;
-                    }
-                    list.forEach((q) => grid.appendChild(createCard(q)));
-                }
-
-                render(baseFiltered);
-
-                const search = document.getElementById("quizSearch");
-                if (search) {
-                    search.addEventListener("input", () => {
-                        const term = normalize(search.value);
-                        if (!term) return render(baseFiltered);
-                        const subset = baseFiltered.filter((q) => normalize(q.titre).startsWith(term));
-                        render(subset);
-                    });
-                }
-            } catch (err) {
-                console.error("Erreur chargement des quiz:", err);
-                const errMsg = document.createElement("div");
-                errMsg.textContent = "Erreur de chargement des quiz.";
-                errMsg.style.color = "red";
-                grid.appendChild(errMsg);
-            }
-        });
+                document.getElementById("quizSearch").oninput = (e) => {
+                    const term = e.target.value.toLowerCase();
+                    const filtered = allQuizzes.filter(q => q.titre.toLowerCase().includes(term));
+                    renderQuizzes(filtered);
+                };
+            });
     </script>
-
 </body>
-
 </html>

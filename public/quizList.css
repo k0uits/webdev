@@ -1,28 +1,90 @@
-.list-toolbar {
-    padding: 0 0 12px;
+.page-container {
+    padding-top: 20px;
 }
 
-#quizSearch {
+.page-title {
+    color: var(--c4); 
+    font-size: 2.2rem;
+    font-weight: 700;
+    margin: 0 0 30px 0;
+    padding-bottom: 10px;
+    border-bottom: 2px solid rgba(246, 177, 45, 0.3); 
+}
+
+.list-toolbar {
+    padding: 0 0 32px;
+}
+
+.quiz-search-input { 
     width: 100%;
     max-width: 520px;
-    padding: 10px 12px;
-    border: 1px solid #cbd3df;
-    border-radius: 8px;
-    font-size: 0.95rem;
+    padding: 14px 20px;
+    background-color: white;
+    border: 2px solid transparent;
+    border-radius: 10px;
+    font-size: 1.05rem;
+    color: var(--c3);
     outline: none;
-    margin-bottom: 12px;
-    transition: border-color 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
 }
 
-#quizSearch:focus {
-    border-color: #F26619;
+.quiz-search-input::placeholder {
+    color: #99aab5;
 }
 
-.carousel-ribbon {
-    padding: 24px;
+.quiz-search-input:focus {
+    border-color: var(--c1); 
+    box-shadow: 0 4px 16px rgba(85, 213, 224, 0.4);
 }
 
 #cards-grid {
     flex-wrap: wrap;
     gap: var(--gap);
+    padding-top: 10px;
+}
+
+.card {
+    display: block;
+    width: var(--card-w);
+    height: 100%;
+    min-width: var(--card-w);
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+    text-decoration: none;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.card-thumb {
+    width: 100%;
+    height: var(--thumb);
+    background: linear-gradient(45deg, var(--c1), var(--c2));
+    /* Ajout d'une icône pour l'esthétique si nécessaire */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 50px;
+    color: white;
+}
+
+.card-thumb::after {
+    content: "❓";
+}
+
+.card-title {
+    color: var(--c3);
+    font-weight: 600;
+    padding: 15px 10px;
+    text-align: center;
+    font-size: 1.1rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }

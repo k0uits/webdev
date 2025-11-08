@@ -22,7 +22,7 @@ router.get("/quizzes/api/:id", getQuizById);
 router.get("/quizzes/:id", showQuizPage);
 
 // API : liste des quiz
-router.get("/quizzes",requireAdmin, listQuizzes);
+router.get("/quizzes", listQuizzes);
 
 // API : création d’un quiz
 router.post("/quizzes", createQuiz);
