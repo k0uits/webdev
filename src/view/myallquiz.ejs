@@ -38,6 +38,23 @@
             <input id="quizSearch" type="text" class="search-input" placeholder="🔍 Rechercher un quiz..." />
         </div>
 
+        <div class="cat-toolbar"
+            style="display:flex; align-items:center; justify-content:space-between; gap:16px; margin: 8px 0 12px;">
+            <div class="cat-actions-left" style="display:flex; gap:8px;">
+                <% if (user && user.role==="admin" ) { %>
+                    <button id="btnAddCat" class="save" type="button" style="padding:8px 12px;">+ Ajouter une
+                        catégorie</button>
+                    <% } %>
+            </div>
+            <div class="cat-actions-right">
+                <button id="btnToggleFilter" class="ghost" type="button" style="padding:8px 12px;">Filtre ▾</button>
+            </div>
+        </div>
+
+        <div id="catPanel" style="display:none; margin-bottom:12px;">
+            <div id="catChips" style="display:flex; flex-wrap:wrap; gap:8px;"></div>
+        </div>
+
         <div id="cards-grid" class="quiz-grid"></div>
 
         <div id="empty-state" class="empty-state" style="display: none;">
@@ -53,6 +70,186 @@
     </script>
 
     <script>
+        const btnToggleFilter = document.getElementById("btnToggleFilter");
+        const catPanel = document.getElementById("catPanel");
+        const catChips = document.getElementById("catChips");
+        const btnAddCat = document.getElementById("btnAddCat");
+        let selectedCategory = "";
+
+        const isAdmin = !!(window.currentUser && window.currentUser.role === "admin");
+
+        if (btnToggleFilter && catPanel) {
+            btnToggleFilter.addEventListener("click", () => {
+                const open = catPanel.style.display !== "none";
+                catPanel.style.display = open ? "none" : "block";
+                btnToggleFilter.textContent = open ? "Filtre ▾" : "Filtre ▴";
+            });
+        }
+
+        async function deleteCategoryByName(label) {
+            try {
+                // 1er essai : suppression "normale"
+                let resp = await fetch("/categories/" + encodeURIComponent(label), {
+                    method: "DELETE"
+                });
+                let data = await resp.json().catch(() => ({}));
+
+                if (resp.ok) {
+                    if (selectedCategory === label) selectedCategory = "";
+                    await loadCategories();
+                    applyFilters();
+                    return true;
+                }
+
+                // Si la catégorie est utilisée → 409 ; on propose de forcer
+                if (resp.status === 409) {
+                    const ok = confirm((data.message || "Catégorie utilisée par des quiz.")
+                        + "\n\nForcer la suppression ? (les quiz garderont la valeur de catégorie enregistrée, mais elle ne sera plus listée)");
+                    if (!ok) return false;
+
+                    // 2e essai : suppression forcée
+                    resp = await fetch("/categories/" + encodeURIComponent(label) + "?force=1", {
+                        method: "DELETE"
+                    });
+                    data = await resp.json().catch(() => ({}));
+
+                    if (!resp.ok) {
+                        alert(data.message || "Suppression forcée impossible");
+                        return false;
+                    }
+
+                    if (selectedCategory === label) selectedCategory = "";
+                    await loadCategories();
+                    applyFilters();
+                    return true;
+                }
+
+                // Autres erreurs
+                alert(data.message || "Suppression impossible");
+                return false;
+            } catch (e) {
+                alert("Erreur réseau.");
+                return false;
+            }
+        }
+
+        async function loadCategories() {
+            try {
+                const r = await fetch("/categories");
+                const arr = await r.json();
+                renderChips(Array.isArray(arr) ? arr : []);
+            } catch {
+                // fallback : extraire depuis les quiz si l’API est vide/HS
+                renderChips(extractCategoriesFromQuizzes(quizzes));
+            }
+        }
+
+        function extractCategoriesFromQuizzes(list) {
+            const set = new Set();
+            (Array.isArray(list) ? list : []).forEach(q => {
+                const c = (q.categorie || "").trim();
+                if (c) set.add(c);
+            });
+            return Array.from(set);
+        }
+
+        function renderChips(list) {
+            if (!catChips) return;
+            catChips.innerHTML = "";
+
+            // Chip "Tous"
+            const allChip = document.createElement("button");
+            allChip.type = "button";
+            allChip.className = "cat-chip" + (selectedCategory === "" ? " active" : "");
+            allChip.textContent = "Tous";
+            allChip.addEventListener("click", () => {
+                selectedCategory = "";
+                updateChipActive();
+                applyFilters();
+            });
+            catChips.appendChild(allChip);
+
+            // Les autres catégories
+            list.forEach(label => {
+                const chip = document.createElement("button");
+                chip.type = "button";
+                chip.className = "cat-chip" + (selectedCategory === label ? " active" : "");
+                chip.textContent = label;
+
+                chip.addEventListener("click", () => {
+                    selectedCategory = (selectedCategory === label) ? "" : label;
+                    updateChipActive();
+                    applyFilters();
+                });
+
+                // Petite croix pour admin
+                if (isAdmin) {
+                    chip.classList.add("has-x");
+                    const x = document.createElement("span");
+                    x.className = "cat-x";
+                    x.textContent = "×";
+                    x.title = "Supprimer la catégorie";
+                    x.addEventListener("click", async (e) => {
+                        e.stopPropagation(); // ne déclenche pas le filtre
+                        const ok = confirm(`Supprimer la catégorie « ${label} » ?`);
+                        if (!ok) return;
+                        await deleteCategoryByName(label);
+                    });
+                    chip.appendChild(x);
+                }
+
+                catChips.appendChild(chip);
+            });
+        }
+
+        function updateChipActive() {
+            document.querySelectorAll(".cat-chip").forEach(el => {
+                const val = el.textContent;
+                el.classList.toggle("active", (selectedCategory === "" && val === "Tous") || val === selectedCategory);
+            });
+        }
+
+        // bouton admin pour ajouter une catégorie
+        if (btnAddCat) {
+            btnAddCat.addEventListener("click", async () => {
+                const name = (prompt("Nom de la nouvelle catégorie ?") || "").trim();
+                if (!name) return;
+                try {
+                    const resp = await fetch("/categories", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ name })
+                    });
+                    const data = await resp.json().catch(() => ({}));
+                    if (!resp.ok) {
+                        alert(data.message || "Impossible d'ajouter la catégorie.");
+                        return;
+                    }
+                    await loadCategories();
+                    alert("Catégorie ajoutée ✅");
+                } catch (e) {
+                    alert("Erreur réseau.");
+                }
+            });
+        }
+
+        // Filtrage combiné recherche + catégorie
+        function normalize(s) { return (s || "").toString().normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase(); }
+
+        window.applyFilters = function () {
+            const term = normalize((document.getElementById("quizSearch")?.value) || "");
+            let items = window.baseFiltered ? window.baseFiltered.slice() : [];
+            if (selectedCategory) {
+                const nc = normalize(selectedCategory);
+                items = items.filter(q => normalize(q.categorie) === nc);
+            }
+            if (term) {
+                items = items.filter(q => normalize(q.titre).startsWith(term));
+            }
+            window.render(items);
+        };
+
+        // après render(baseFiltered);
         document.addEventListener("DOMContentLoaded", () => {
             const mode = window.pageMode;
             const allLink = document.getElementById("all-link");
@@ -106,6 +303,7 @@
     <!-- Affichage des quiz + suppression -->
     <script>
         document.addEventListener("DOMContentLoaded", async () => {
+
             const grid = document.getElementById("cards-grid");
             if (!grid) return;
 
@@ -151,8 +349,27 @@
                                 method: "DELETE",
                                 headers: { "Content-Type": "application/json" },
                             });
-                            if (resp.ok) card.remove();
-                            else {
+                            if (resp.ok) {
+                                // 1) Retirer du DOM
+                                card.remove();
+
+                                // 2) Mettre à jour la source globale
+                                if (Array.isArray(window.baseFiltered)) {
+                                    window.baseFiltered = window.baseFiltered.filter(q => String(q.id) !== String(quiz.id));
+                                }
+
+                                // 3) Relancer le rendu selon les filtres actifs
+                                if (typeof window.applyFilters === "function") {
+                                    window.applyFilters();
+                                } else {
+                                    render(window.baseFiltered);
+                                }
+
+                                // 4) (Optionnel) Recharger les catégories s’il n’en reste plus aucune avec ce label
+                                if (typeof loadCategories === "function") {
+                                    loadCategories();
+                                }
+                            } else {
                                 const msg = await resp.json().catch(() => ({}));
                                 alert(msg.message || "Suppression impossible");
                             }
@@ -196,7 +413,38 @@
                     list.forEach((q) => grid.appendChild(createCard(q)));
                 }
 
+                window.baseFiltered = baseFiltered;
+
+                // rendu unique
+                window.render = function (list) {
+                    const grid = document.getElementById("cards-grid");
+                    grid.innerHTML = "";
+                    if (!list.length) {
+                        const empty = document.createElement("div");
+                        empty.textContent = "Aucun quiz à afficher.";
+                        empty.style.color = "#fff";
+                        grid.appendChild(empty);
+                        return;
+                    }
+                    list.forEach((q) => grid.appendChild(createCard(q)));
+                };
+
+                // premier rendu
+                render(window.baseFiltered);
+
+                // premier rendu
                 render(baseFiltered);
+
+                // maintenant qu'on a baseFiltered et render, on peut charger les catégories
+                if (typeof loadCategories === "function") {
+                    loadCategories();
+                }
+
+                // render(baseFiltered);
+
+                if (typeof loadCategories === "function") {
+                    loadCategories();
+                }
 
                 const search = document.getElementById("quizSearch");
                 if (search) {
@@ -204,6 +452,7 @@
                         const term = normalize(search.value);
                         if (!term) return render(baseFiltered);
                         const subset = baseFiltered.filter((q) => normalize(q.titre).startsWith(term));
+                        search.addEventListener("input", () => window.applyFilters());
                         render(subset);
                     });
                 }

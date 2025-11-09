@@ -316,3 +316,50 @@ body {
   }
 
 }
+
+
+.cat-chip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1px solid #cbd3df;
+  border-radius: 999px;
+  background: #f7f9fc;
+  color: #334;
+  cursor: pointer;
+  transition: all .15s ease;
+}
+
+.cat-chip.has-x {
+  padding-right: 26px;
+}
+
+/* espace pour la croix */
+.cat-chip:hover {
+  background: #eef4ff;
+  border-color: #a8b8e8;
+}
+
+.cat-chip.active {
+  background: #2f5bd3;
+  color: #fff;
+  border-color: #2f5bd3;
+}
+
+.cat-x {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  line-height: 1;
+  font-weight: 600;
+  opacity: .7;
+  cursor: pointer;
+  user-select: none;
+}
+
+.cat-x:hover {
+  opacity: 1;
+}

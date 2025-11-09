@@ -10,10 +10,22 @@
 
 <body>
   <div class="container">
+    <script>
+      window.currentUser = JSON.parse('<%- JSON.stringify(user || null) %>');
+    </script>
+
     <a href="/" class="close-btn">×</a>
 
     <h1>Créer un quiz</h1>
     <p class="subtitle">Configurez votre quiz personnalisé</p>
+
+    <div class="form-group">
+      <label for="categorieSelect" style="display:block; margin-bottom:6px; font-weight:600;">Catégorie</label>
+      <select id="categorieSelect" required
+        style="width:100%; padding:10px 12px; border:1px solid #cbd3df; border-radius:8px; font-size:0.95rem;">
+        <option value="" disabled selected>Chargement…</option>
+      </select>
+    </div>
 
     <div class="form-group">
       <input type="text" id="quizTitle" placeholder="Titre du quiz" required>
@@ -29,15 +41,84 @@
   </div>
 
   <script>
-function createQuestion() {
-  const questions = document.querySelectorAll('.question-card');
-  const qIndex = questions.length + 1;
 
-  const questionDiv = document.createElement('div');
-  questionDiv.className = 'question-card';
-  questionDiv.dataset.qIndex = qIndex;
+    async function loadCategories() {
+      const select = document.getElementById('categorieSelect');
+      if (!select) return;
 
-  questionDiv.innerHTML = `
+      const me = window.currentUser || null;
+      const isAdmin = !!(me && me.role === 'admin');
+
+      try {
+        const res = await fetch('/categories');
+        const cats = await res.json();
+
+        select.innerHTML = '';
+
+        const def = document.createElement('option');
+        def.value = '';
+        def.textContent = '— Choisir une catégorie —';
+        def.disabled = true;
+        def.selected = true;
+        select.appendChild(def);
+
+        (Array.isArray(cats) ? cats : []).forEach(cat => {
+          const opt = document.createElement('option');
+          opt.value = cat;
+          opt.textContent = cat;
+          select.appendChild(opt);
+        });
+
+        if (isAdmin) {
+          const addOpt = document.createElement('option');
+          addOpt.value = '__new__';
+          addOpt.textContent = '➕ Nouvelle catégorie…';
+          select.appendChild(addOpt);
+
+          select.addEventListener('change', async () => {
+            if (select.value === '__new__') {
+              const name = (prompt("Nom de la nouvelle catégorie :") || '').trim();
+              if (!name) { select.value = ''; return; }
+              try {
+                const resp = await fetch('/categories', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ name })
+                });
+                const data = await resp.json().catch(() => ({}));
+                if (!resp.ok) {
+                  alert(data.message || 'Erreur ajout catégorie');
+                  select.value = '';
+                  return;
+                }
+                const opt = document.createElement('option');
+                opt.value = data.name;
+                opt.textContent = data.name;
+                select.insertBefore(opt, addOpt);
+                select.value = data.name;
+                alert('Catégorie ajoutée ✅');
+              } catch {
+                alert('Erreur réseau');
+                select.value = '';
+              }
+            }
+          });
+        }
+      } catch (e) {
+        console.error("Erreur chargement catégories:", e);
+        select.innerHTML = '<option value="" disabled selected>Erreur de chargement</option>';
+      }
+    }
+
+    function createQuestion() {
+      const questions = document.querySelectorAll('.question-card');
+      const qIndex = questions.length + 1;
+
+      const questionDiv = document.createElement('div');
+      questionDiv.className = 'question-card';
+      questionDiv.dataset.qIndex = qIndex;
+
+      questionDiv.innerHTML = `
     <div class="question-header">
       <span class="question-title">Question ${qIndex}</span>
       <button type="button" class="btn-delete-question" onclick="deleteQuestion(this)">
@@ -65,68 +146,68 @@ function createQuestion() {
     <div class="hint">Cochez la ou les bonne(s) réponse(s)</div>
   `;
 
-  document.getElementById('questions').appendChild(questionDiv);
+      document.getElementById('questions').appendChild(questionDiv);
 
-  const choicesContainer = questionDiv.querySelector('[data-role="choices"]');
-  addChoiceToContainer(choicesContainer, qIndex);
-  addChoiceToContainer(choicesContainer, qIndex);
-  
-  renumberQuestions();
-}
+      const choicesContainer = questionDiv.querySelector('[data-role="choices"]');
+      addChoiceToContainer(choicesContainer, qIndex);
+      addChoiceToContainer(choicesContainer, qIndex);
 
-function deleteQuestion(btn) {
-  const question = btn.closest('.question-card');
-  if (question) {
-    question.remove();
-    renumberQuestions();
-  }
-}
+      renumberQuestions();
+    }
 
-function renumberQuestions() {
-  const questions = document.querySelectorAll('.question-card');
-  questions.forEach((q, index) => {
-    const newIndex = index + 1;
-    q.querySelector('.question-title').textContent = `Question ${newIndex}`;
-    q.dataset.qIndex = newIndex;
-    const inputs = q.querySelectorAll('.choice-checkbox');
-    inputs.forEach(input => {
-      input.name = `correct_q${newIndex}`;
-    });
-  });
-}
+    function deleteQuestion(btn) {
+      const question = btn.closest('.question-card');
+      if (question) {
+        question.remove();
+        renumberQuestions();
+      }
+    }
 
-function setQuestionType(btn, type) {
-  const question = btn.closest('.question-card');
-  const qIndex = question.dataset.qIndex;
-  const buttons = question.querySelectorAll('.type-btn');
+    function renumberQuestions() {
+      const questions = document.querySelectorAll('.question-card');
+      questions.forEach((q, index) => {
+        const newIndex = index + 1;
+        q.querySelector('.question-title').textContent = `Question ${newIndex}`;
+        q.dataset.qIndex = newIndex;
+        const inputs = q.querySelectorAll('.choice-checkbox');
+        inputs.forEach(input => {
+          input.name = `correct_q${newIndex}`;
+        });
+      });
+    }
 
-  buttons.forEach(b => {
-    b.classList.toggle('active', b.dataset.type === type);
-  });
+    function setQuestionType(btn, type) {
+      const question = btn.closest('.question-card');
+      const qIndex = question.dataset.qIndex;
+      const buttons = question.querySelectorAll('.type-btn');
 
-  const choiceInputs = question.querySelectorAll('.choice-checkbox');
-  choiceInputs.forEach(input => {
-    input.type = type === 'simple' ? 'radio' : 'checkbox';
-    input.name = `correct_q${qIndex}`;
-  });
-}
+      buttons.forEach(b => {
+        b.classList.toggle('active', b.dataset.type === type);
+      });
 
-function addChoice(btn) {
-  const question = btn.closest('.question-card');
-  const qIndex = question.dataset.qIndex;
-  const choicesContainer = question.querySelector('[data-role="choices"]');
-  addChoiceToContainer(choicesContainer, qIndex);
-}
+      const choiceInputs = question.querySelectorAll('.choice-checkbox');
+      choiceInputs.forEach(input => {
+        input.type = type === 'simple' ? 'radio' : 'checkbox';
+        input.name = `correct_q${qIndex}`;
+      });
+    }
 
-function addChoiceToContainer(choicesContainer, qIndex) {
-  const question = choicesContainer.closest('.question-card');
-  const choiceIndex = choicesContainer.children.length + 1;
-  const type = question.querySelector('.type-btn.active').dataset.type;
-  const inputType = type === 'simple' ? 'radio' : 'checkbox';
+    function addChoice(btn) {
+      const question = btn.closest('.question-card');
+      const qIndex = question.dataset.qIndex;
+      const choicesContainer = question.querySelector('[data-role="choices"]');
+      addChoiceToContainer(choicesContainer, qIndex);
+    }
 
-  const choiceDiv = document.createElement('div');
-  choiceDiv.className = 'choice-item';
-  choiceDiv.innerHTML = `
+    function addChoiceToContainer(choicesContainer, qIndex) {
+      const question = choicesContainer.closest('.question-card');
+      const choiceIndex = choicesContainer.children.length + 1;
+      const type = question.querySelector('.type-btn.active').dataset.type;
+      const inputType = type === 'simple' ? 'radio' : 'checkbox';
+
+      const choiceDiv = document.createElement('div');
+      choiceDiv.className = 'choice-item';
+      choiceDiv.innerHTML = `
     <input type="${inputType}" 
            class="choice-checkbox" 
            name="correct_q${qIndex}">
@@ -141,122 +222,132 @@ function addChoiceToContainer(choicesContainer, qIndex) {
     </button>
   `;
 
-  choicesContainer.appendChild(choiceDiv);
-}
-
-function removeChoice(btn) {
-  const choiceItem = btn.closest('.choice-item');
-  choiceItem.remove();
-}
-
-document.getElementById('addQ').addEventListener('click', createQuestion);
-
-document.getElementById('submit').addEventListener('click', async () => {
-  const statusEl = document.getElementById('status');
-  statusEl.textContent = '';
-  statusEl.className = '';
-
-  const titre = document.getElementById('quizTitle').value.trim();
-
-  if (!titre) {
-    statusEl.textContent = 'Veuillez entrer un titre';
-    statusEl.className = 'error';
-    return;
-  }
-
-  const questionCards = document.querySelectorAll('.question-card');
-
-  if (questionCards.length === 0) {
-    statusEl.textContent = 'Ajoutez au moins une question';
-    statusEl.className = 'error';
-    return;
-  }
-
-  const questions = [];
-
-  for (const card of questionCards) {
-    const enonce = card.querySelector('[data-role="enonce"]').value.trim();
-    if (!enonce) {
-      statusEl.textContent = 'Toutes les questions doivent avoir un énoncé';
-      statusEl.className = 'error';
-      return;
+      choicesContainer.appendChild(choiceDiv);
     }
 
-    const type = card.querySelector('.type-btn.active').dataset.type;
-    const choiceItems = card.querySelectorAll('.choice-item');
-    const choisir = [];
-    const correction = [];
+    function removeChoice(btn) {
+      const choiceItem = btn.closest('.choice-item');
+      choiceItem.remove();
+    }
 
-    for (let i = 0; i < choiceItems.length; i++) {
-      const item = choiceItems[i];
-      const text = item.querySelector('[data-role="choice-text"]').value.trim();
-      if (!text) continue;
+    document.getElementById('addQ').addEventListener('click', createQuestion);
 
-      const choixId = `c${i + 1}`;
-      choisir.push({ id: choixId, texte: text });
+    document.getElementById('submit').addEventListener('click', async () => {
+      const statusEl = document.getElementById('status');
+      statusEl.textContent = '';
+      statusEl.className = '';
 
-      if (item.querySelector('.choice-checkbox').checked) {
-        correction.push(choixId);
+      const titre = document.getElementById('quizTitle').value.trim();
+
+      if (!titre) {
+        statusEl.textContent = 'Veuillez entrer un titre';
+        statusEl.className = 'error';
+        return;
       }
-    }
 
-    if (choisir.length < 2) {
-      statusEl.textContent = 'Chaque question doit avoir au moins 2 options';
-      statusEl.className = 'error';
-      return;
-    }
+      const questionCards = document.querySelectorAll('.question-card');
 
-    if (correction.length === 0) {
-      statusEl.textContent = 'Chaque question doit avoir au moins une bonne réponse';
-      statusEl.className = 'error';
-      return;
-    }
+      if (questionCards.length === 0) {
+        statusEl.textContent = 'Ajoutez au moins une question';
+        statusEl.className = 'error';
+        return;
+      }
 
-    questions.push({
-      id: `q${questions.length + 1}`,
-      enonce,
-      types: type,
-      choisir,
-      correction
+      const questions = [];
+
+      for (const card of questionCards) {
+        const enonce = card.querySelector('[data-role="enonce"]').value.trim();
+        if (!enonce) {
+          statusEl.textContent = 'Toutes les questions doivent avoir un énoncé';
+          statusEl.className = 'error';
+          return;
+        }
+
+        const type = card.querySelector('.type-btn.active').dataset.type;
+        const choiceItems = card.querySelectorAll('.choice-item');
+        const choisir = [];
+        const correction = [];
+
+        for (let i = 0; i < choiceItems.length; i++) {
+          const item = choiceItems[i];
+          const text = item.querySelector('[data-role="choice-text"]').value.trim();
+          if (!text) continue;
+
+          const choixId = `c${i + 1}`;
+          choisir.push({ id: choixId, texte: text });
+
+          if (item.querySelector('.choice-checkbox').checked) {
+            correction.push(choixId);
+          }
+        }
+
+        if (choisir.length < 2) {
+          statusEl.textContent = 'Chaque question doit avoir au moins 2 options';
+          statusEl.className = 'error';
+          return;
+        }
+
+        if (correction.length === 0) {
+          statusEl.textContent = 'Chaque question doit avoir au moins une bonne réponse';
+          statusEl.className = 'error';
+          return;
+        }
+
+        questions.push({
+          id: `q${questions.length + 1}`,
+          enonce,
+          types: type,
+          choisir,
+          correction
+        });
+      }
+
+      const categorie = (document.getElementById('categorieSelect')?.value || '').trim();
+      if (!categorie) {
+        statusEl.textContent = 'Veuillez choisir une catégorie';
+        statusEl.className = 'error';
+        return;
+      }
+
+      const quizData = {
+        id: `quiz_${Date.now()}`,
+        titre,
+        questions,
+        categorie
+      };
+
+      try {
+        const resp = await fetch('/quizzes', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(quizData)
+        });
+
+        const data = await resp.json();
+
+        if (resp.ok) {
+          statusEl.textContent = data.message || 'Quiz créé avec succès !';
+          statusEl.className = 'success';
+
+          document.getElementById('quizTitle').value = '';
+          document.getElementById('questions').innerHTML = '';
+
+          setTimeout(() => {
+            window.location.href = '/';
+          }, 1500);
+        } else {
+          statusEl.textContent = data.message || 'Erreur lors de la création';
+          statusEl.className = 'error';
+        }
+      } catch (e) {
+        statusEl.textContent = 'Erreur réseau';
+        statusEl.className = 'error';
+      }
     });
-  }
 
-  const quizData = {
-    id: `quiz_${Date.now()}`,
-    titre,
-    questions
-  };
-
-  try {
-    const resp = await fetch('/quizzes', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(quizData)
-    });
-
-    const data = await resp.json();
-
-    if (resp.ok) {
-      statusEl.textContent = data.message || 'Quiz créé avec succès !';
-      statusEl.className = 'success';
-
-      document.getElementById('quizTitle').value = '';
-      document.getElementById('questions').innerHTML = '';
-
-      setTimeout(() => {
-        window.location.href = '/';
-      }, 1500);
-    } else {
-      statusEl.textContent = data.message || 'Erreur lors de la création';
-      statusEl.className = 'error';
-    }
-  } catch (e) {
-    statusEl.textContent = 'Erreur réseau';
-    statusEl.className = 'error';
-  }
-});
-
-createQuestion();
+    createQuestion();
+    loadCategories();
+    
   </script>
 
 </body>
