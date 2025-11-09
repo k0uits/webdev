@@ -201,7 +201,7 @@ export function getCategories(_req: Request, res: Response) {
   }
 }
 
-/** POST /categories — ajoute une catégorie (admin uniquement) */
+// POST /categories — ajoute une catégorie (admin uniquement) 
 export function addCategory(req: Request, res: Response) {
   try {
     const me: any = (req as any).user || null;
@@ -229,7 +229,7 @@ export function addCategory(req: Request, res: Response) {
   }
 }
 
-/** DELETE /categories/:name — supprime une catégorie (admin) */
+// DELETE /categories/:name — supprime une catégorie (admin)
 export function deleteCategory(req: Request, res: Response) {
   try {
     const me: any = (req as any).user || null;
@@ -294,25 +294,6 @@ export async function getEditPage(req: Request, res: Response) {
   if (!found) {
     return res.status(404).send("Quiz introuvable");
   }
-
-  /*// autorisation: admin ou propriétaire
-  let isAdmin = false;
-  if (anyReq.user.role && String(anyReq.user.role) === "admin") {
-    isAdmin = true;
-  }
-
-  let isOwner = false;
-  if (found.ownerId !== undefined && found.ownerId !== null) {
-    isOwner = String(found.ownerId) === String(anyReq.user.id);
-  } else {
-    if (found.ownerEmail && anyReq.user.email) {
-      isOwner = String(found.ownerEmail) === String(anyReq.user.email);
-    }
-  }
-
-  if (!isAdmin && !isOwner) {
-    return res.status(403).send("Vous n'avez pas le droit de modifier ce quiz");
-  }*/
 
   // autorisation: admin ou propriétaire (compat multi-champs)
   let isAdmin = false;
@@ -394,30 +375,6 @@ export async function updateQuiz(req: Request, res: Response) {
 
   const existing = quizzes[index];
 
-  /*// autorisation: admin ou propriétaire (ownerId/auteurId ou ownerEmail/auteurEmail)
-  let isAdmin = false;
-  if (anyReq.user.role && String(anyReq.user.role) === "admin") {
-    isAdmin = true;
-  }
-
-  let isOwner = false;
-  if (existing.ownerId !== undefined && existing.ownerId !== null) {
-    isOwner = String(existing.ownerId) === String(anyReq.user.id);
-  } else if (existing.auteurId !== undefined && existing.auteurId !== null) {
-    isOwner = String(existing.auteurId) === String(anyReq.user.id);
-  } else {
-    // fallback email si ton ancien schéma stockait l’email
-    if (existing.ownerEmail && anyReq.user.email) {
-      isOwner = String(existing.ownerEmail) === String(anyReq.user.email);
-    } else if (existing.auteurEmail && anyReq.user.email) {
-      isOwner = String(existing.auteurEmail) === String(anyReq.user.email);
-    }
-  }
-
-  if (!isAdmin && !isOwner) {
-    return res.status(403).json({ ok: false, message: "Vous n'avez pas le droit de modifier ce quiz" });
-  }*/
-
   // autorisation: admin ou propriétaire (compat multi-champs)
   let isAdmin = false;
   if (anyReq.user && anyReq.user.role && String(anyReq.user.role) === "admin") {
@@ -446,9 +403,6 @@ export async function updateQuiz(req: Request, res: Response) {
     return res.status(403).json({ ok: false, message: "Vous n'avez pas le droit de modifier ce quiz" });
   }
 
-  // >>>>>>>>> CORRECTION CRITIQUE ICI <<<<<<<<<
-  // On conserve tout l'objet existant (dont les champs de propriété),
-  // et on met à jour uniquement titre/categorie/questions.
   const updated = { ...existing };
   updated.titre = titre;
   updated.categorie = categorie;

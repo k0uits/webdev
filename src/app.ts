@@ -29,7 +29,7 @@ app.use(express.static(path.join(__dirname, "../public")));
 // --- Session AVANT les routes
 app.use(session({
     store: new SQLiteStore({
-        dir: sessionDir,          // 👈 dossier garanti existant
+        dir: sessionDir,          // dossier garanti existant
         db: "sessions.sqlite",    // nom du fichier
         // option utile en dev multi-reload:
         concurrentDB: true
@@ -63,7 +63,7 @@ app.get("/", async (req, res) => {
 
         res.render("home", {
             user: (req as any).user || null,
-            leaderboard: users, // ⬅️ dispo directement dans home.ejs
+            leaderboard: users, // dispo directement dans home.ejs
         });
     } catch (err) {
         console.error("Erreur chargement leaderboard:", err);

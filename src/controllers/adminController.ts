@@ -1,4 +1,3 @@
-// src/controllers/adminController.ts
 import { Request, Response } from "express";
 import {
     getUsers,
@@ -55,7 +54,7 @@ export async function updateUser(req: Request, res: Response) {
 
     const users = await getUsers();
 
-    // 🧩 Si l’admin vient de se rétrograder lui-même en "user"
+    // Si l’admin vient de se rétrograder lui-même en "user"
     if (updated && String(me.id) === id && updated.role === "user") {
         // déconnexion immédiate
         return res.redirect("/");

@@ -93,7 +93,7 @@ export function logout(req: Request, res: Response, _next: NextFunction) {
   });
 }
 
-// (A) Mettre à jour nom + email
+//Mettre à jour nom + email
 export async function updateProfile(req: Request, res: Response, _next: NextFunction) {
   const me = (req as any).user;
   if (!me) return res.redirect("/login");
@@ -127,7 +127,7 @@ export async function updateProfile(req: Request, res: Response, _next: NextFunc
   return res.render("profile", { user: updated, message: "Profil mis à jour ✅" });
 }
 
-// (B) Changer le mot de passe (avec double vérif)
+// Changer le mot de passe (avec double vérif)
 export async function changePassword(req: Request, res: Response, _next: NextFunction) {
   const me = (req as any).user;
   if (!me) return res.redirect("/login");
@@ -160,7 +160,7 @@ export async function changePassword(req: Request, res: Response, _next: NextFun
   return res.render("profile", { user: { ...me, password: hash }, message: "Mot de passe modifié ✅" });
 }
 
-// (C) Supprimer le compte (avec confirmation + vérif du mot de passe)
+// Supprimer le compte (avec confirmation + vérif du mot de passe)
 export async function deleteAccount(req: Request, res: Response, _next: NextFunction) {
   const me = (req as any).user;
   if (!me) return res.redirect("/login");

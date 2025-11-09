@@ -80,14 +80,14 @@
 
       let score = 0;
       const totalQuestions = corrections.length;
-      const answers = {}; // 🟢 pour envoyer au serveur
+      const answers = {}; // pour envoyer au serveur
 
       corrections.forEach(({ id, correction }) => {
         const questionCard = document.querySelector(`[data-question-id="${id}"]`);
         const inputs = questionCard.querySelectorAll('input:checked');
         const userAnswers = Array.from(inputs).map(input => input.value);
 
-        answers[id] = userAnswers.length <= 1 ? userAnswers[0] || "" : userAnswers; // 🟢 stocke pour POST
+        answers[id] = userAnswers.length <= 1 ? userAnswers[0] || "" : userAnswers; // stocke pour POST
 
         const isCorrect =
           userAnswers.length === correction.length &&
@@ -140,7 +140,7 @@
 
       resultDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
-      // 🟢 ENVOI DES POINTS AU SERVEUR
+      // ENVOI DES POINTS AU SERVEUR
       try {
         const res = await fetch("/score/award", {
           method: "POST",
