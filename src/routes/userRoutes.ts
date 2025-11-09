@@ -1,6 +1,7 @@
 import { Router, type Request, type Response, type NextFunction } from "express";
 import { validationResult } from "express-validator";
-import { login, register, logout, updateProfile, changePassword, deleteAccount } from "../controllers/userController";
+import { login, register, logout, updateProfile, changePassword, deleteAccount, showProfile } from "../controllers/userController";
+import { ensureAuthenticated } from "../middleware/auth";
 import { loginRules, registerRules } from "../validators/userValidator";
 
 const router = Router();
@@ -27,5 +28,7 @@ router.get("/logout", logout);
 router.post("/profile/update", requireAuth, updateProfile);
 router.post("/profile/password", requireAuth, changePassword);
 router.post("/profile/delete", requireAuth, deleteAccount);
+
+router.get("/profile", ensureAuthenticated, showProfile);
 
 export default router;

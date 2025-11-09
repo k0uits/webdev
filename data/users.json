@@ -1,30 +1,34 @@
 [
   {
-    "id": 1761866964593,
+    "id": "1761866964593",
     "nom": "mathys",
     "email": "mathys@gmail.com",
     "password": "$2a$10$3pwmu.WfSBO8.yWqECVZXucm5X3sEAEzZwA9pjkhYrwMJtv18886O",
-    "role": "admin"
+    "role": "admin",
+    "points": 3
   },
   {
-    "id": 1761934138736,
+    "id": "1761934138736",
     "nom": "celine",
     "email": "celine@gmail.com",
     "password": "$2a$10$DSkcQ43VGIgQRQDXkdYAUOByB5bMKH.dU3HzAIPYfEk1Jq0VG64I2",
-    "role": "user"
+    "role": "user",
+    "points": 0
   },
   {
-    "id": 1762202977089,
+    "id": "1762202977089",
     "nom": "bob",
     "email": "bob@gmail.com",
     "password": "$2a$10$igSGIGo/t92/Vvw1IIPw0uE9KH2sSlkxvKtiVSbRbx4k.Yxn4jwTC",
-    "role": "user"
+    "role": "user",
+    "points": 0
   },
   {
-    "id": 1762279438455,
+    "id": "1762279438455",
     "nom": "jean",
     "email": "jean@gmail.com",
     "password": "$2a$10$NJGecrl1.GVcSk83Alf7KOyzkwPS/AwBuI2vvtggt4LTmYqcJs05i",
-    "role": "user"
+    "role": "user",
+    "points": 0
   }
 ]

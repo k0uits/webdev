@@ -3,6 +3,7 @@ import path from "path";
 import userRoutes from "./routes/userRoutes";
 import quizRoutes from "./routes/quizRoutes";
 import adminRoutes from "./routes/adminRoutes";
+import scoreRoutes from "./routes/scoreRoutes";
 import session from "express-session";
 import { attachUser } from "./middleware/auth";
 import fs from "fs";
@@ -20,8 +21,8 @@ app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "view"));
 
 // Parsers + static
-app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "../public")));
 
 // --- Session AVANT les routes
@@ -51,6 +52,7 @@ app.use((req, res, next) => {
 app.use("/", userRoutes);
 app.use("/", quizRoutes);
 app.use("/", adminRoutes);
+app.use("/", scoreRoutes);
 
 // --- Pages
 app.get("/", (req, res) => {

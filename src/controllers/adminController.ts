@@ -1,74 +1,95 @@
+// src/controllers/adminController.ts
 import { Request, Response } from "express";
-import { getUsers, removeUserById, updateUserFields, setPasswordById } from "../models/userModel";
+import {
+    getUsers,
+    removeUserById,
+    updateUserById,
+    setPasswordById,
+    findUserById,
+} from "../models/userModel";
 import bcrypt from "bcryptjs";
 
 export async function renderAdminPage(req: Request, res: Response) {
+    const me: any = (req as any).user || null;
+    if (!me || (me.role || "user") !== "admin") {
+        return res.status(403).render("error", { message: "Accès refusé (admin requis)" });
+    }
     const users = await getUsers();
-    const message = req.query.message as string | undefined; // on récupère le message éventuel
-    res.render("admin", { users, message });
+    return res.render("admin", { user: me, users, message: null });
 }
 
 export async function deleteUser(req: Request, res: Response) {
-    const id = Number(req.params.id);
-    if (!id || Number.isNaN(id)) return res.status(400).send("ID invalide");
-
+    const me: any = (req as any).user || null;
+    if (!me || (me.role || "user") !== "admin") {
+        return res.status(403).render("error", { message: "Accès refusé (admin requis)" });
+    }
+    const id = String(req.params.id || "");
     const ok = await removeUserById(id);
-    if (!ok) return res.status(404).send("Utilisateur introuvable");
-
-    return res.redirect("/admin?message=Utilisateur supprimé avec succès");
+    const users = await getUsers();
+    return res.render("admin", {
+        user: me,
+        users,
+        message: ok ? "Utilisateur supprimé ✅" : "Suppression impossible ❌",
+    });
 }
 
 export async function updateUser(req: Request, res: Response) {
-    const id = Number(req.params.id);
-    type Role = "user" | "admin";
-    const { nom, email, role } = req.body as { nom: string; email: string; role?: string };
+    const me: any = (req as any).user || null;
+    if (!me || (me.role || "user") !== "admin") {
+        return res.status(403).render("error", { message: "Accès refusé (admin requis)" });
+    }
 
-    const rawRole = (role ?? "").toString().trim().toLowerCase();
-    const safeRole: Role = rawRole === "admin" ? "admin" : "user";
+    const id = String(req.params.id || "");
+    const { nom, email, role } = req.body as {
+        nom?: string;
+        email?: string;
+        role?: "user" | "admin";
+    };
 
-    const ok = await updateUserFields(
-        id,
-        nom.trim(),
-        email.trim(),
-        safeRole
-    );
+    // Mise à jour du compte ciblé
+    const updated = await updateUserById(id, {
+        nom: nom ?? undefined,
+        email: email ?? undefined,
+        role: role === "admin" || role === "user" ? role : undefined,
+    });
 
-    if (!id || Number.isNaN(id)) return res.status(400).send("ID invalide");
-    if (!nom?.trim() || !email?.trim()) return res.status(400).send("Champs manquants");
+    const users = await getUsers();
 
+    // 🧩 Si l’admin vient de se rétrograder lui-même en "user"
+    if (updated && String(me.id) === id && updated.role === "user") {
+        // déconnexion immédiate
+        return res.redirect("/");
+    }
 
-    if (!ok) return res.status(404).send("Utilisateur introuvable");
-
-
-    // redirige avec message
-    return res.redirect("/admin?message=Modifications enregistrées avec succès");
+    return res.render("admin", {
+        user: me,
+        users,
+        message: updated ? "Utilisateur mis à jour ✅" : "Mise à jour impossible ❌",
+    });
 }
 
 export async function updateUserPassword(req: Request, res: Response) {
-    const id = Number(req.params.id);
-    const { password = "", passwordConfirm = "" } = (req.body ?? {}) as { password?: string; passwordConfirm?: string };
+    const me: any = (req as any).user || null;
+    if (!me || (me.role || "user") !== "admin") {
+        return res.status(403).render("error", { message: "Accès refusé (admin requis)" });
+    }
+    const id = String(req.params.id || "");
+    const { newPassword } = req.body as { newPassword?: string };
+    let msg = "Mot de passe mis à jour ✅";
 
-    if (!id || Number.isNaN(id)) return res.status(400).send("ID invalide");
-
-    const errors: string[] = [];
-    if (!password || typeof password !== "string") errors.push("Mot de passe requis.");
-    if (!passwordConfirm || typeof passwordConfirm !== "string") errors.push("Confirmation requise.");
-    if (password && password.length < 8) errors.push("Le mot de passe doit contenir au moins 8 caractères.");
-    if (password !== passwordConfirm) errors.push("Les mots de passe ne correspondent pas.");
-
-    if (errors.length) {
-        // On renvoie vers l’admin avec un message concis (tu peux aussi les afficher inline si tu veux)
-        const msg = encodeURIComponent(errors.join(" "));
-        return res.redirect(`/admin?message=${msg}`);
+    if (!newPassword || newPassword.length < 6) {
+        msg = "Mot de passe trop court (≥ 6) ❌";
+    } else {
+        const exists = await findUserById(id);
+        if (!exists) {
+            msg = "Utilisateur introuvable ❌";
+        } else {
+            const hash = await bcrypt.hash(newPassword, 10);
+            const ok = await setPasswordById(id, hash);
+            if (!ok) msg = "Échec de la mise à jour du mot de passe ❌";
+        }
     }
 
-    try {
-        const hash = await bcrypt.hash(password, 10);
-        const ok = await setPasswordById(id, hash);
-        if (!ok) return res.status(404).send("Utilisateur introuvable");
-        return res.redirect("/admin?message=Mot de passe mis à jour ✅");
-    } catch (e) {
-        console.error("updateUserPassword error:", e);
-        return res.status(500).send("Erreur serveur");
-    }
+    const users = await getUsers();
+    return res.render("admin", { user: me, users, message: msg });
 }

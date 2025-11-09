@@ -62,7 +62,7 @@ export async function register(req: Request, res: Response, next: NextFunction) 
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUser: User = {
-      id: Date.now(),
+      id: String(Date.now()),
       nom,
       email,
       password: hashedPassword,
@@ -189,4 +189,24 @@ export async function deleteAccount(req: Request, res: Response, _next: NextFunc
     res.clearCookie(cookieName);
     return res.redirect("/login");
   });
+}
+
+// --- Récupère le classement des utilisateurs par points ---
+export async function getLeaderboard(_req: Request, res: Response) {
+  const users = (await getUsers()).map(u => ({
+    id: String(u.id),
+    nom: u.nom,
+    role: u.role || "user",
+    points: Number(u.points || 0),
+  }));
+  users.sort((a, b) => b.points - a.points);
+  res.json(users);
+}
+
+export async function showProfile(req: Request, res: Response) {
+  const me = (req as any).user;
+  if (!me) return res.redirect("/login");
+  const fresh = await findUserById(String(me.id));
+  const user = fresh ? { ...fresh, points: Number(fresh.points || 0) } : { ...me, points: 0 };
+  return res.render("profile", { user, message: null });
 }

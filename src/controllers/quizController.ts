@@ -53,7 +53,7 @@ export function listQuizzes(_req: Request, res: Response) {
       id: q.id,
       titre: q.titre,
       auteurId: q.auteurId ?? q.auteurid ?? null,
-      categorie: q.categorie || ""   // 👈 IMPORTANT pour le filtre
+      categorie: q.categorie ?? q.category ?? ""
     }));
 
     return res.status(200).json(out);

@@ -4,7 +4,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title><%= quiz.titre %> - Quiz</title>
+  <title>
+    <%= quiz.titre %> - Quiz
+  </title>
   <link rel="stylesheet" href="/login.css">
   <link rel="stylesheet" href="/quiz.css">
 </head>
@@ -24,31 +26,38 @@
       }
     </script>
 
-    <h1><%= quiz.titre %></h1>
+    <h1>
+      <%= quiz.titre %>
+    </h1>
     <p class="subtitle">Répondez aux <%= quiz.questions.length %> questions</p>
 
     <form id="quizForm" class="quiz-content">
       <% quiz.questions.forEach((q, index)=> { %>
         <div class="question-card" data-question-id="<%= q.id %>">
-          <div class="question-number">Question <%= index + 1 %> / <%= quiz.questions.length %></div>
-          <div class="question-text"><%= q.enonce %></div>
+          <div class="question-number">Question <%= index + 1 %> / <%= quiz.questions.length %>
+          </div>
+          <div class="question-text">
+            <%= q.enonce %>
+          </div>
 
           <div class="choices">
             <% q.choisir.forEach((choix)=> { %>
               <label class="choice-label" data-choice-id="<%= choix.id %>">
                 <% if (q.types==='multiple' ) { %>
                   <input type="checkbox" name="q_<%= q.id %>" value="<%= choix.id %>">
-                <% } else { %>
-                  <input type="radio" name="q_<%= q.id %>" value="<%= choix.id %>">
-                <% } %>
-                <span class="choice-text"><%= choix.texte %></span>
+                  <% } else { %>
+                    <input type="radio" name="q_<%= q.id %>" value="<%= choix.id %>">
+                    <% } %>
+                      <span class="choice-text">
+                        <%= choix.texte %>
+                      </span>
               </label>
-            <% }); %>
+              <% }); %>
           </div>
         </div>
-      <% }); %>
+        <% }); %>
 
-      <button type="submit" class="btn-submit">Valider mes réponses</button>
+          <button type="submit" class="btn-submit">Valider mes réponses</button>
     </form>
 
     <div id="result" class="result">
@@ -62,19 +71,23 @@
     const resultDiv = document.getElementById('result');
     const resultMessage = document.getElementById('resultMessage');
     const scoreDisplay = document.getElementById('scoreDisplay');
+    const quizId = "<%= quiz.id %>";
 
     const corrections = JSON.parse('<%- JSON.stringify(quiz.questions.map(q => ({ id: q.id, correction: q.correction }))) %>');
 
-    quizForm.addEventListener('submit', (e) => {
+    quizForm.addEventListener('submit', async (e) => {
       e.preventDefault();
 
       let score = 0;
       const totalQuestions = corrections.length;
+      const answers = {}; // 🟢 pour envoyer au serveur
 
       corrections.forEach(({ id, correction }) => {
         const questionCard = document.querySelector(`[data-question-id="${id}"]`);
         const inputs = questionCard.querySelectorAll('input:checked');
         const userAnswers = Array.from(inputs).map(input => input.value);
+
+        answers[id] = userAnswers.length <= 1 ? userAnswers[0] || "" : userAnswers; // 🟢 stocke pour POST
 
         const isCorrect =
           userAnswers.length === correction.length &&
@@ -96,7 +109,6 @@
           if (isCorrectAnswer) {
             label.classList.add('correct-answer');
           }
-
           if (isChecked && !isCorrectAnswer) {
             label.classList.add('wrong-answer');
           }
@@ -108,8 +120,8 @@
       });
 
       const percentage = Math.round((score / totalQuestions) * 100);
-
       resultDiv.classList.add('show');
+
       if (percentage >= 50) {
         resultDiv.classList.add('success');
         resultDiv.classList.remove('error');
@@ -127,6 +139,25 @@
       e.target.querySelector('button[type="submit"]').style.cursor = 'not-allowed';
 
       resultDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+      // 🟢 ENVOI DES POINTS AU SERVEUR
+      try {
+        const res = await fetch("/score/award", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ quizId, answers }),
+          credentials: "include",
+        });
+        const data = await res.json();
+        if (res.ok) {
+          console.log("Points ajoutés :", data);
+          alert(`+${data.gained} point(s) ajoutés à ton score ! Total : ${data.total} points`);
+        } else {
+          console.warn("Erreur attribution points :", data.message);
+        }
+      } catch (err) {
+        console.error("Erreur envoi score :", err);
+      }
     });
   </script>
 </body>

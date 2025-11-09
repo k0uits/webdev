@@ -43,7 +43,51 @@
         <div class="track clone" aria-hidden="true"></div>
       </div>
     </section>
+
+    <section class="leaderboard">
+      <h2>🏆 Classement</h2>
+      <div id="podium" class="podium"></div>
+      <div id="ranking" class="ranking-list"></div>
+    </section>
   </main>
+
+  <!-- GESTION CLASSEMENT -->
+  <script>
+    document.addEventListener("DOMContentLoaded", async () => {
+      try {
+        const r = await fetch("/leaderboard");
+        const users = await r.json();
+
+        const p = document.getElementById("podium");
+        p.innerHTML = "";
+        const top3 = users.slice(0, 3);
+        const spots = ["first", "second", "third"];
+        top3.forEach((u, i) => {
+          const div = document.createElement("div");
+          div.className = "podium-spot " + spots[i];
+          div.innerHTML = `
+        <div class="medal">${i === 0 ? "🥇" : i === 1 ? "🥈" : "🥉"}</div>
+        <div class="name">${u.nom}</div>
+        <div class="pts">${u.points} pts</div>`;
+          p.appendChild(div);
+        });
+
+        const list = document.getElementById("ranking");
+        list.innerHTML = "";
+        users.slice(3).forEach((u, i) => {
+          const item = document.createElement("div");
+          item.className = "rank-row";
+          item.innerHTML = `
+        <span class="pos">${i + 4}.</span>
+        <span class="name">${u.nom}</span>
+        <span class="pts">${u.points} pts</span>`;
+          list.appendChild(item);
+        });
+      } catch (e) {
+        console.error("leaderboard:", e);
+      }
+    });
+  </script>
 
   <!-- GESTION CONNEXION -->
   <script>
