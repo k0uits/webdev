@@ -50,7 +50,6 @@ Projet_final/
 | Identifiant | Mot de Passe |
 |-----------|--------------|
 | admin@gmail.com | admin123 |
-|-----------|--------------|
 | celine@gmail.com | celine123 |
 
 ## Fonctionnement du modèle MVC
@@ -71,7 +70,6 @@ Navigateur → Route → Contrôleur → Modèle → Vue → Réponse HTTP
 | Commande | Description |
 |-----------|--------------|
 | `npm run setup` | Telecharge tous les modules requis et donne toutes la autorisations nécessaires |
-|-----------|--------------|
 | `npm run dev` | Lance le serveur avec `ts-node-dev` (rechargement automatique) |
 
 ---
