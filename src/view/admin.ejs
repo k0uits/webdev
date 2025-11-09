@@ -36,103 +36,122 @@
             <div class="flash">
                 <%= message %>
             </div>
-            <% } %>
+        <% } %>
 
-                <div class="admin-table-wrap">
-                    <table>
-                        <thead>
+        <div class="admin-table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nom</th>
+                        <th>Email</th>
+                        <th>Rôle</th>
+                        <th style="width:250px;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (users && users.length) { %>
+                        <% users.forEach(u=> { %>
                             <tr>
-                                <th>ID</th>
-                                <th>Nom</th>
-                                <th>Email</th>
-                                <th>Rôle</th>
-                                <th style="width:200px;">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <% if (users && users.length) { %>
-                                <% users.forEach(u=> { %>
-                                    <tr>
-                                        <td><strong>#<%= u.id %></strong></td>
-                                        <td>
-                                            <%= u.nom %>
-                                        </td>
-                                        <td>
-                                            <%= u.email %>
-                                        </td>
-                                        <td>
-                                            <span
-                                                class="badge <%= u.role === 'admin' ? 'badge-admin' : 'badge-user' %>">
-                                                <%= u.role %>
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <div class="actions">
-                                                <button class="btn-edit"
-                                                    data-open-modal="edit-<%= u.id %>">Modifier</button>
-                                                <form method="POST" action="/admin/users/<%= u.id %>/delete"
-                                                    onsubmit="return confirm('Supprimer <%= u.nom %> ?');">
-                                                    <button class="btn-delete" type="submit">Supprimer</button>
-                                                </form>
-                                            </div>
+                                <td><strong>#<%= u.id %></strong></td>
+                                <td><%= u.nom %></td>
+                                <td><%= u.email %></td>
+                                <td>
+                                    <span class="badge <%= u.role === 'admin' ? 'badge-admin' : 'badge-user' %>">
+                                        <%= u.role %>
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="actions">
+                                        <button class="btn-edit" data-open-modal="edit-<%= u.id %>">Modifier</button>
+                                        <button class="btn-password" data-open-modal="password-<%= u.id %>"> MDP</button>
+                                        <form method="POST" action="/admin/users/<%= u.id %>/delete"
+                                            onsubmit="return confirm('Supprimer <%= u.nom %> ?');">
+                                            <button class="btn-delete" type="submit">Supprimer</button>
+                                        </form>
+                                    </div>
 
-                                            <div class="modal" id="edit-<%= u.id %>">
-                                                <div class="modal-card">
-                                                    <div class="modal-head">
-                                                        <div class="modal-title">Modifier <%= u.nom %>
-                                                        </div>
-                                                        <button class="btn-close"
-                                                            data-close-modal="edit-<%= u.id %>">✕</button>
-                                                    </div>
-                                                    <form method="POST" action="/admin/users/<%= u.id %>/update"
-                                                        onsubmit="return confirm('Confirmer la modification ?');">
-                                                        <div class="modal-body">
-                                                            <div class="form-group">
-                                                                <label>Nom</label>
-                                                                <input type="text" name="nom" value="<%= u.nom %>"
-                                                                    required />
-                                                            </div>
-                                                            <div class="form-group">
-                                                                <label>Email</label>
-                                                                <input type="email" name="email" value="<%= u.email %>"
-                                                                    required />
-                                                            </div>
-                                                            <div class="form-group">
-                                                                <label>Rôle</label>
-                                                                <select name="role" required>
-                                                                    <option value="user" <%=u.role==='user' ? 'selected'
-                                                                        : '' %>>User</option>
-                                                                    <option value="admin" <%=u.role==='admin'
-                                                                        ? 'selected' : '' %>>Admin</option>
-                                                                </select>
-                                                            </div>
-                                                        </div>
-                                                        <div class="modal-actions">
-                                                            <button type="button" class="btn-cancel"
-                                                                data-close-modal="edit-<%= u.id %>">Annuler</button>
-                                                            <button type="submit" class="btn-save">Enregistrer</button>
-                                                        </div>
-                                                    </form>
-                                                </div>
+                                    <!-- MODALE MODIFICATION -->
+                                    <div class="modal" id="edit-<%= u.id %>">
+                                        <div class="modal-card">
+                                            <div class="modal-head">
+                                                <div class="modal-title">Modifier <%= u.nom %></div>
+                                                <button class="btn-close" data-close-modal="edit-<%= u.id %>">✕</button>
                                             </div>
-                                        </td>
-                                    </tr>
-                                    <% }) %>
-                                        <% } else { %>
-                                            <tr>
-                                                <td colspan="5" class="no-users">Aucun utilisateur trouvé.</td>
-                                            </tr>
-                                            <% } %>
-                        </tbody>
-                    </table>
-                </div>
+                                            <form method="POST" action="/admin/users/<%= u.id %>/update"
+                                                onsubmit="return confirm('Confirmer la modification ?');">
+                                                <div class="modal-body">
+                                                    <div class="form-group">
+                                                        <label>Nom</label>
+                                                        <input type="text" name="nom" value="<%= u.nom %>" required />
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label>Email</label>
+                                                        <input type="email" name="email" value="<%= u.email %>" required />
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label>Rôle</label>
+                                                        <select name="role" required>
+                                                            <option value="user" <%=u.role==='user' ? 'selected' : '' %>>User</option>
+                                                            <option value="admin" <%=u.role==='admin' ? 'selected' : '' %>>Admin</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-actions">
+                                                    <button type="button" class="btn-cancel" data-close-modal="edit-<%= u.id %>">Annuler</button>
+                                                    <button type="submit" class="btn-save">Enregistrer</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+
+                                    <!-- MODALE CHANGEMENT DE MOT DE PASSE -->
+                                    <div class="modal" id="password-<%= u.id %>">
+                                        <div class="modal-card">
+                                            <div class="modal-head">
+                                                <div class="modal-title"> Changer le mot de passe de <%= u.nom %></div>
+                                                <button class="btn-close" data-close-modal="password-<%= u.id %>">✕</button>
+                                            </div>
+                                            <form method="POST" action="/admin/users/<%= u.id %>/password"
+                                                onsubmit="return confirm('Changer le mot de passe de <%= u.nom %> ?');">
+                                                <div class="modal-body">
+                                                    <div class="warning-box">
+                                                        <strong>⚠️ Attention :</strong> Vous êtes sur le point de changer le mot de passe de cet utilisateur. Il devra utiliser le nouveau mot de passe pour se connecter.
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label>Nouveau mot de passe</label>
+                                                        <input type="password" name="password" minlength="8" required placeholder="Minimum 8 caractères" />
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label>Confirmer le mot de passe</label>
+                                                        <input type="password" name="passwordConfirm" minlength="8" required placeholder="Retapez le mot de passe" />
+                                                    </div>
+                                                </div>
+                                                <div class="modal-actions">
+                                                    <button type="button" class="btn-cancel" data-close-modal="password-<%= u.id %>">Annuler</button>
+                                                    <button type="submit" class="btn-save">Changer le mot de passe</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    <% } else { %>
+                        <tr>
+                            <td colspan="5" class="no-users">Aucun utilisateur trouvé.</td>
+                        </tr>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
     </main>
 
     <script>
         const me = JSON.parse('<%- JSON.stringify(user || null) %>');
-
         const welcome = document.getElementById("welcome");
         const authBtn = document.getElementById("authButton");
+
         if (me) {
             welcome.textContent = "Bonjour " + me.nom;
             authBtn.textContent = "Déconnexion";
@@ -170,5 +189,4 @@
         });
     </script>
 </body>
-
 </html>
