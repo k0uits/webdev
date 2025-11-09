@@ -45,7 +45,7 @@ Projet_final/
 
 ---
 
-## Identifiants Utilisateurs
+## Identifiants utilisateurs
 
 | Identifiant | Mot de Passe |
 |-----------|--------------|
@@ -69,7 +69,7 @@ Navigateur → Route → Contrôleur → Modèle → Vue → Réponse HTTP
 
 | Commande | Description |
 |-----------|--------------|
-| `npm run setup` | Telecharge tous les modules requis et donne toutes la autorisations nécessaires |
+| `npm run setup` | Telecharge tous les modules requis et donne toutes les autorisations nécessaires |
 | `npm run dev` | Lance le serveur avec `ts-node-dev` (rechargement automatique) |
 
 ---
