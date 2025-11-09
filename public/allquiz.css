@@ -258,6 +258,26 @@ body {
     margin-bottom: 10px;
 }
 
+.btn-edit {
+  display: inline-block;
+  background-color: #2ecc71;   /* vert principal */
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.btn-edit:hover {
+  background-color: #27ae60;   /* vert plus foncé au survol */
+}
+
+.btn-edit:active {
+  background-color: #1e8449;   /* vert encore plus foncé quand cliqué */
+}
+
 @media (max-width: 768px) {
     .side-nav {
         width: 220px;
