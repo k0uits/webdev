@@ -888,7 +888,7 @@
           }
         ],
         "correction": [
-          "c2"
+          "c3"
         ]
       },
       {
@@ -918,5 +918,37 @@
     "faita": "2025-11-09T17:06:07.090Z",
     "categorie": "Géographie",
     "auteurId": "1761866964593"
+  },
+  {
+    "id": "quiz_1762711898190",
+    "titre": "test?",
+    "questions": [
+      {
+        "id": "q1",
+        "enonce": "zzeaea",
+        "types": "simple",
+        "choisir": [
+          {
+            "id": "c1",
+            "texte": "a"
+          },
+          {
+            "id": "c2",
+            "texte": "b"
+          },
+          {
+            "id": "c3",
+            "texte": "c"
+          }
+        ],
+        "correction": [
+          "c2",
+          "c3"
+        ]
+      }
+    ],
+    "faita": "2025-11-09T18:11:38.194Z",
+    "categorie": "Géographie",
+    "auteurId": "1762202977089"
   }
 ]

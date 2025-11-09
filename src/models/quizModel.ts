@@ -18,7 +18,15 @@ export interface Quiz {
   questions: Question[];
   faita: string;
   categorie?: string;
+
   auteurId?: string;
+  ownerId?: string;
+  createdBy?: string;
+  userId?: string;
+
+
+
+
   
 }
 

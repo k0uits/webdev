@@ -85,7 +85,16 @@ export function createQuiz(req: Request, res: Response) {
       questions: questions as Question[],
       faita: new Date().toISOString(),
       categorie: rawCat,
-      auteurId: String(me.id)
+
+      ownerId: String(me.id),
+
+      // --- compatibilité anciens champs
+      auteurId: String(me.id),
+      createdBy: String(me.id),
+      userId: String(me.id)
+
+
+      //auteurId: String(me.id)
     };
 
     quizzes.push(newQuiz);
@@ -288,7 +297,7 @@ export async function getEditPage(req: Request, res: Response) {
     return res.status(404).send("Quiz introuvable");
   }
 
-  // autorisation: admin ou propriétaire
+  /*// autorisation: admin ou propriétaire
   let isAdmin = false;
   if (anyReq.user.role && String(anyReq.user.role) === "admin") {
     isAdmin = true;
@@ -305,7 +314,38 @@ export async function getEditPage(req: Request, res: Response) {
 
   if (!isAdmin && !isOwner) {
     return res.status(403).send("Vous n'avez pas le droit de modifier ce quiz");
+  }*/
+
+  // autorisation: admin ou propriétaire (compat multi-champs)
+  let isAdmin = false;
+  if (anyReq.user && anyReq.user.role && String(anyReq.user.role) === "admin") {
+    isAdmin = true;
   }
+
+  let isOwner = false;
+  if (anyReq.user) {
+    const uid = String(anyReq.user.id);
+
+    // ID possibles
+    const ids: any[] = [];
+    if (found.ownerId !== undefined && found.ownerId !== null) ids.push(found.ownerId);
+    if (found.auteurId !== undefined && found.auteurId !== null) ids.push(found.auteurId);
+    if (found.createdBy !== undefined && found.createdBy !== null) ids.push(found.createdBy);
+    if (found.userId !== undefined && found.userId !== null) ids.push(found.userId);
+
+    for (let i = 0; i < ids.length; i++) {
+      if (String(ids[i]) === uid) {
+        isOwner = true;
+        break;
+      }
+    }
+  }
+
+  if (!isAdmin && !isOwner) {
+    return res.status(403).send("Vous n'avez pas le droit de modifier ce quiz");
+  }
+
+
 
   // rendre la vue d'édition
   return res.render("edit", { user: anyReq.user, quiz: found });
@@ -356,7 +396,7 @@ export async function updateQuiz(req: Request, res: Response) {
 
   const existing = quizzes[index];
 
-  // autorisation: admin ou propriétaire (ownerId/auteurId ou ownerEmail/auteurEmail)
+  /*// autorisation: admin ou propriétaire (ownerId/auteurId ou ownerEmail/auteurEmail)
   let isAdmin = false;
   if (anyReq.user.role && String(anyReq.user.role) === "admin") {
     isAdmin = true;
@@ -373,6 +413,34 @@ export async function updateQuiz(req: Request, res: Response) {
       isOwner = String(existing.ownerEmail) === String(anyReq.user.email);
     } else if (existing.auteurEmail && anyReq.user.email) {
       isOwner = String(existing.auteurEmail) === String(anyReq.user.email);
+    }
+  }
+
+  if (!isAdmin && !isOwner) {
+    return res.status(403).json({ ok: false, message: "Vous n'avez pas le droit de modifier ce quiz" });
+  }*/
+
+  // autorisation: admin ou propriétaire (compat multi-champs)
+  let isAdmin = false;
+  if (anyReq.user && anyReq.user.role && String(anyReq.user.role) === "admin") {
+    isAdmin = true;
+  }
+
+  let isOwner = false;
+  if (anyReq.user) {
+    const uid = String(anyReq.user.id);
+
+    const ids: any[] = [];
+    if (existing.ownerId !== undefined && existing.ownerId !== null) ids.push(existing.ownerId);
+    if (existing.auteurId !== undefined && existing.auteurId !== null) ids.push(existing.auteurId);
+    if (existing.createdBy !== undefined && existing.createdBy !== null) ids.push(existing.createdBy);
+    if (existing.userId !== undefined && existing.userId !== null) ids.push(existing.userId);
+
+    for (let i = 0; i < ids.length; i++) {
+      if (String(ids[i]) === uid) {
+        isOwner = true;
+        break;
+      }
     }
   }
 
