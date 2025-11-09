@@ -1,6 +1,7 @@
 import { Router } from "express";
-import { getCreatePage, listQuizzes, createQuiz, getQuizById, deleteQuiz, showQuizPage } from "../controllers/quizController";
+import { getCreatePage, listQuizzes, createQuiz, getQuizById, deleteQuiz, showQuizPage, getCategories, addCategory, deleteCategory } from "../controllers/quizController";
 import { ensureAuthenticated, ensureAuthenticatedPage } from "../middleware/auth";
+import { requireAdmin } from "../middleware/authAdmin";
 
 const router = Router();
 
@@ -34,5 +35,12 @@ router.post("/quizzes", ensureAuthenticated, createQuiz);
 
 // suppression réservée aux connectés (logique fine dans deleteQuiz)
 router.delete("/quizzes/:id", ensureAuthenticated, deleteQuiz);
+
+// Catégories
+router.get("/categories", getCategories);
+router.post("/categories", ensureAuthenticated, requireAdmin, addCategory);
+
+// suppression catégorie réservée aux admins
+router.delete("/categories/:name", ensureAuthenticated, requireAdmin, deleteCategory);
 
 export default router;
