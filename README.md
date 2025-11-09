@@ -9,18 +9,75 @@ L’objectif est de séparer clairement la logique métier (models), la logique 
 ## Structure du projet
 
 ```
-Projet_final/
-├── package.json           # Dépendances et scripts NPM
-├── tsconfig.json          # Configuration TypeScript
+Projet Final/
+│
+├── README.md
+├── package.json
+├── package-lock.json
+├── tsconfig.json
+├── jsconfig.json
+│
 ├── src/
-│   ├── public/            # Fichiers CSS, JS
-│   ├── validators/        # Fonctions de validation des données (ex : formulaires, requêtes)
-│   ├── models/            # Schémas et classes métiers
-│   ├── controllers/       # Gestion de la logique applicative
-│   ├── routes/            # Définition des routes Express
-│   ├── view/              # Templates (EJS)
-│   ├── server.ts          # Point d’entrée du serveur (lance app.listen)
-│   └── app.ts             # Configuration de l’application Express (middlewares, routes, etc.)
+│   ├── app.ts
+│   ├── server.ts
+│   │
+│   ├── controllers/
+│   │   ├── adminController.ts
+│   │   ├── authController.ts
+│   │   ├── quizController.ts
+│   │   └── userController.ts
+│   │
+│   ├── models/
+│   │   ├── userModel.ts
+│   │   ├── quizModel.ts
+│   │   ├── categoryModel.ts
+│   │   └── resultModel.ts
+│   │
+│   ├── routes/
+│   │   ├── adminRoutes.ts
+│   │   ├── authRoutes.ts
+│   │   ├── quizRoutes.ts
+│   │   └── userRoutes.ts
+│   │
+│   ├── middleware/
+│   │   └── authMiddleware.ts
+│   │
+│   ├── utils/
+│   │   ├── db.ts
+│   │   └── helpers.ts
+│   │
+│   ├── views/
+│   │   ├── admin.ejs
+│   │   ├── login.ejs
+│   │   ├── profile.ejs
+│   │   ├── register.ejs
+│   │   ├── quiz.ejs
+│   │   ├── error.ejs
+│   │   └── layout.ejs
+│   │
+│   └── data/
+│       ├── users.json
+│       ├── categories.json
+│       ├── quizz.json
+│       └── results.json
+│
+└── public/
+    ├── css/
+    │   ├── home.css
+    │   ├── admin.css
+    │   ├── quiz.css
+    │   └── profile.css
+    │
+    ├── js/
+    │   ├── main.js
+    │   ├── quiz.js
+    │   └── admin.js
+    │
+    └── images/
+        ├── logo.png
+        ├── favicon.ico
+        └── background.jpg
+
 ```
 
 ---
