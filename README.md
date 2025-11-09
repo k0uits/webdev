@@ -29,13 +29,13 @@ Projet_final/
 
 1. **Cloner le projet**
    ```bash
-   git clone <url_du_repository>
+   git clone https://github.com/k0uits/webdev.git
    cd Projet_final
    ```
 
 2. **Installer les dépendances**
    ```bash
-   npm install
+   npm run setup
    ```
 
 3. **Lancer le serveur**
@@ -44,6 +44,14 @@ Projet_final/
    ```
 
 ---
+
+## Identifiants Utilisateurs
+
+| Identifiant | Mot de Passe |
+|-----------|--------------|
+| admin@gmail.com | admin123 |
+|-----------|--------------|
+| celine@gmail.com | celine123 |
 
 ## Fonctionnement du modèle MVC
 
@@ -61,6 +69,8 @@ Navigateur → Route → Contrôleur → Modèle → Vue → Réponse HTTP
 ## Scripts utiles
 
 | Commande | Description |
+|-----------|--------------|
+| `npm run setup` | Telecharge tous les modules requis et donne toutes la autorisations nécessaires |
 |-----------|--------------|
 | `npm run dev` | Lance le serveur avec `ts-node-dev` (rechargement automatique) |
 

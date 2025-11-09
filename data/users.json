@@ -17,10 +17,10 @@
   },
   {
     "id": "1762202977089",
-    "nom": "Bob",
-    "email": "bob@gmail.com",
-    "password": "$2a$10$igSGIGo/t92/Vvw1IIPw0uE9KH2sSlkxvKtiVSbRbx4k.Yxn4jwTC",
-    "role": "user",
+    "nom": "Admin",
+    "email": "admin@gmail.com",
+    "password": "$2a$10$Eaaly3nPksXAIaqAXyk72OEk3DFChwKfv3n3cT55pZeJWzFjC9gs2",
+    "role": "admin",
     "points": 2
   },
   {

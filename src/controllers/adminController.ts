@@ -73,17 +73,17 @@ export async function updateUserPassword(req: Request, res: Response) {
         return res.status(403).render("error", { message: "Accès refusé (admin requis)" });
     }
     const id = String(req.params.id || "");
-    const { newPassword } = req.body as { newPassword?: string };
+    const { password } = req.body as { password?: string };
     let msg = "Mot de passe mis à jour ✅";
 
-    if (!newPassword || newPassword.length < 6) {
+    if (!password || password.length < 8) {
         msg = "Mot de passe trop court (≥ 6) ❌";
     } else {
         const exists = await findUserById(id);
         if (!exists) {
             msg = "Utilisateur introuvable ❌";
         } else {
-            const hash = await bcrypt.hash(newPassword, 10);
+            const hash = await bcrypt.hash(password, 10);
             const ok = await setPasswordById(id, hash);
             if (!ok) msg = "Échec de la mise à jour du mot de passe ❌";
         }
