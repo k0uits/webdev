@@ -79,6 +79,11 @@ Navigateur → Route → Contrôleur → Modèle → Vue → Réponse HTTP
 - **TypeScript** : typage statique
 - **EJS** : moteur de vues
 - **Nodemon / ts-node-dev** : redémarrage automatique en développement
+- **express-session** : gestion des sessions utilisateur (connexion persistante)
+- **connect-sqlite3** : stockage des sessions dans une base SQLite locale
+- **bcryptjs** : hachage sécurisé des mots de passe utilisateurs
+- **sqlite3** : dépendance nécessaire pour le stockage des sessions
+- **cookie-parser (optionnel)** : lecture et gestion simplifiée des cookies
 
 ---
 
