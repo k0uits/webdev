@@ -299,7 +299,7 @@
             input.className = 'choice-checkbox';
             input.name = 'correct_q' + questionDiv.dataset.qIndex;
 
-            // 👉 type selon le bouton actif
+            //type selon le bouton actif
             let curType = 'simple';
             const activeBtn = questionDiv.querySelector('.type-btn.active');
             if (activeBtn && activeBtn.getAttribute('data-type') === 'multiple') {
@@ -383,7 +383,7 @@
                     input.checked = checked;
                 }
 
-                // 🔁 IMPORTANT: remettre le type après avoir ajouté les choix
+                //remettre le type après avoir ajouté les choix
                 setQuestionType(qDiv, typeValue);
             }
         }
@@ -527,7 +527,7 @@
         (async function init() {
             const qz = window.currentQuiz || {};
             document.getElementById('questions').innerHTML = '';
-            await fillFormFromQuiz(qz);   // ⬅️ on attend le remplissage (catégorie incluse)
+            await fillFormFromQuiz(qz);   //on attend le remplissage (catégorie incluse)
 
             // maintenant seulement, on prend le snapshot initial
             window._initialSnapshot = snapshotFromForm();
