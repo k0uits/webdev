@@ -52,6 +52,8 @@ Projet_final/
 | admin@gmail.com | admin123 |
 | celine@gmail.com | celine123 |
 
+---
+
 ## Fonctionnement du modèle MVC
 
 - **Model (Modèle)** : gère les données, les requêtes vers la base de données et les règles métiers.
