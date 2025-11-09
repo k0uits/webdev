@@ -1,4 +1,5 @@
-html, body {
+html,
+body {
     min-height: 100vh;
 }
 
@@ -322,4 +323,47 @@ body {
     .form-actions .btn {
         width: 100%;
     }
+}
+
+.profile-points {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+
+    background: #ffffff;
+    border-radius: 10px;
+    border: 1px solid #e2e5ec;
+
+    padding: 18px 24px;
+    margin: 25px auto;
+    width: fit-content;
+
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #333;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.profile-points strong {
+    color: #4a4a4a;
+    font-weight: 600;
+}
+
+.profile-points span {
+    background: #f5f6fa;
+    color: #0078ff;
+    font-weight: 700;
+    padding: 6px 14px;
+    border-radius: 8px;
+    border: 1px solid #dce1f0;
+    min-width: 60px;
+    text-align: center;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.profile-points:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
 }
