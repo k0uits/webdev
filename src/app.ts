@@ -6,6 +6,7 @@ import adminRoutes from "./routes/adminRoutes";
 import scoreRoutes from "./routes/scoreRoutes";
 import session from "express-session";
 import { attachUser } from "./middleware/auth";
+import { getUsers } from "./models/userModel";
 import fs from "fs";
 
 const app = express();
@@ -55,8 +56,19 @@ app.use("/", adminRoutes);
 app.use("/", scoreRoutes);
 
 // --- Pages
-app.get("/", (req, res) => {
-    res.render("home", { user: (req as any).user || null });
+app.get("/", async (req, res) => {
+    try {
+        const users = await getUsers();
+        users.sort((a, b) => Number(b.points || 0) - Number(a.points || 0));
+
+        res.render("home", {
+            user: (req as any).user || null,
+            leaderboard: users, // ⬅️ dispo directement dans home.ejs
+        });
+    } catch (err) {
+        console.error("Erreur chargement leaderboard:", err);
+        res.render("home", { user: (req as any).user || null, leaderboard: [] });
+    }
 });
 
 app.get("/login", (_req, res) => { res.render("login"); });

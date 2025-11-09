@@ -14,7 +14,6 @@
     window.currentUser = JSON.parse('<%- JSON.stringify(user || null) %>');
   </script>
 
-
   <aside class="side-nav">
     <div class="logo">WebQuizzer</div>
     <nav class="side-menu">
@@ -25,9 +24,7 @@
       <% if (user && user.role==="admin" ) { %>
         <a href="/admin" class="side-link create">Admin</a>
         <% } %>
-          <a href="/profile" class="side-link profile-link">
-            👤 <span>Profil</span>
-          </a>
+          <a href="/profile" class="side-link profile-link">👤 <span>Profil</span></a>
     </nav>
 
     <div class="side-footer">
@@ -44,55 +41,57 @@
       </div>
     </section>
 
+    <!-- ==== LEADERBOARD RENDU EN EJS ==== -->
     <section class="leaderboard">
       <h2>🏆 Classement</h2>
-      <div id="podium" class="podium"></div>
-      <div id="ranking" class="ranking-list"></div>
+
+      <% const lb=Array.isArray(leaderboard) ? leaderboard.slice() : []; lb.sort((a,b)=> Number(b.points||0) -
+        Number(a.points||0));
+        const top3 = lb.slice(0,3);
+        const rest = lb.slice(3);
+        const medal = (i) => (i===0?'🥇':i===1?'🥈':'🥉');
+        %>
+
+        <div class="podium">
+          <% top3.forEach((u, i)=> { %>
+            <div class="podium-spot <%= i===0?'first':(i===1?'second':'third') %>">
+              <div class="medal">
+                <%= medal(i) %>
+              </div>
+              <div class="name">
+                <%= u.nom %>
+              </div>
+              <div class="pts">
+                <%= Number(u.points||0) %> pts
+              </div>
+            </div>
+            <% }) %>
+              <% if (top3.length===0) { %>
+                <div class="rank-row">Aucun utilisateur pour le moment.</div>
+                <% } %>
+        </div>
+
+        <div class="ranking-list">
+          <% rest.forEach((u, i)=> { %>
+            <div class="rank-row">
+              <span class="pos">
+                <%= i + 4 %>.
+              </span>
+              <span class="name">
+                <%= u.nom %>
+              </span>
+              <span class="pts">
+                <%= Number(u.points||0) %> pts
+              </span>
+            </div>
+            <% }) %>
+        </div>
     </section>
   </main>
-
-  <!-- GESTION CLASSEMENT -->
-  <script>
-    document.addEventListener("DOMContentLoaded", async () => {
-      try {
-        const r = await fetch("/leaderboard");
-        const users = await r.json();
-
-        const p = document.getElementById("podium");
-        p.innerHTML = "";
-        const top3 = users.slice(0, 3);
-        const spots = ["first", "second", "third"];
-        top3.forEach((u, i) => {
-          const div = document.createElement("div");
-          div.className = "podium-spot " + spots[i];
-          div.innerHTML = `
-        <div class="medal">${i === 0 ? "🥇" : i === 1 ? "🥈" : "🥉"}</div>
-        <div class="name">${u.nom}</div>
-        <div class="pts">${u.points} pts</div>`;
-          p.appendChild(div);
-        });
-
-        const list = document.getElementById("ranking");
-        list.innerHTML = "";
-        users.slice(3).forEach((u, i) => {
-          const item = document.createElement("div");
-          item.className = "rank-row";
-          item.innerHTML = `
-        <span class="pos">${i + 4}.</span>
-        <span class="name">${u.nom}</span>
-        <span class="pts">${u.points} pts</span>`;
-          list.appendChild(item);
-        });
-      } catch (e) {
-        console.error("leaderboard:", e);
-      }
-    });
-  </script>
 
   <!-- GESTION CONNEXION -->
   <script>
     document.addEventListener("DOMContentLoaded", () => {
-      const nom = localStorage.getItem("nom");
       const welcome = document.getElementById("welcome");
       const authBtn = document.getElementById("authButton");
       const me = window.currentUser || null;
@@ -101,12 +100,10 @@
         welcome.textContent = `Bonjour ${me.nom}`;
         authBtn.textContent = "Déconnexion";
         authBtn.href = "#";
-
         authBtn.onclick = async (e) => {
           e.preventDefault();
           try {
             await fetch("/logout", { method: "GET", credentials: "include" });
-            localStorage.removeItem("nom");
             window.location.href = "/";
           } catch (err) {
             console.error("Erreur de déconnexion :", err);
@@ -122,7 +119,7 @@
     });
   </script>
 
-  <!-- CHARGEMENT DYNAMIQUE DES QUIZ -->
+  <!-- CHARGEMENT DYNAMIQUE DES QUIZ (carrousel) -->
   <script>
     document.addEventListener("DOMContentLoaded", async () => {
       const TOTAL_CASES = 7;
@@ -140,15 +137,14 @@
           <div class="thumb"></div>
           <div class="title">${quiz.titre}</div>
         `;
-
         card.style.cursor = "pointer";
         card.addEventListener("click", () => {
           location.href = "/quizzes/" + encodeURIComponent(quiz.id);
         });
 
-        // --- Afficher bouton Supprimer seulement pour l’auteur ou admin
         const canDelete =
-          quiz && quiz.id && quiz.id !== "#" && me && (me.role === "admin" || String(me.id) === String(quiz.auteurId));
+          quiz && quiz.id && quiz.id !== "#" && me &&
+          (me.role === "admin" || String(me.id) === String(quiz.auteurId));
 
         if (canDelete) {
           const controls = document.createElement("div");
@@ -168,7 +164,6 @@
                 method: "DELETE",
                 headers: { "Content-Type": "application/json" },
               });
-
               if (resp.ok) {
                 card.remove();
                 updateClone();
@@ -185,18 +180,14 @@
           controls.appendChild(delBtn);
           card.appendChild(controls);
         }
-
         return card;
       };
 
       const updateClone = () => {
         if (!track2) return;
         track2.innerHTML = "";
-
         track1.childNodes.forEach((node) => {
           const clone = node.cloneNode(true);
-
-          // Si c'est une carte de quiz, réattacher les événements
           if (node.classList && node.classList.contains('quiz-card')) {
             const quizId = node.getAttribute('data-quiz-id');
             if (quizId) {
@@ -204,21 +195,17 @@
               clone.addEventListener("click", () => {
                 location.href = "/quizzes/" + encodeURIComponent(quizId);
               });
-
-              // Réattacher l'événement du bouton supprimer
               const delBtn = clone.querySelector('.btn-delete');
               if (delBtn) {
                 delBtn.addEventListener("click", async (e) => {
                   e.stopPropagation();
                   const ok = confirm("Supprimer ce quiz ?");
                   if (!ok) return;
-
                   try {
                     const resp = await fetch("/quizzes/" + encodeURIComponent(quizId), {
                       method: "DELETE",
                       headers: { "Content-Type": "application/json" },
                     });
-
                     if (resp.ok) {
                       node.remove();
                       clone.remove();
@@ -235,7 +222,6 @@
               }
             }
           }
-
           track2.appendChild(clone);
         });
       };
@@ -251,13 +237,11 @@
           const card = createCard(q);
           track1.appendChild(card);
         }
-
         while (i < TOTAL_CASES) {
           const placeholder = createCard({ id: "#", titre: "Titre du quiz" });
           track1.appendChild(placeholder);
           i++;
         }
-
         updateClone();
       } catch (err) {
         console.error("Erreur chargement des quiz:", err);
