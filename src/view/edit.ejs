@@ -15,7 +15,7 @@
             window.currentQuiz = JSON.parse('<%- JSON.stringify(quiz) %>'); // quiz envoyé par le contrôleur
         </script>
 
-        <a href="#" id="closeEdit" class="close-btn" role="button" aria-label="Restez sur la page">×</a>
+        <a href="#" id="closeEdit" class="close-btn" role="button">×</a>
 
         <h1>Modifier le quiz</h1>
         <p class="subtitle">Mettez à jour les informations de votre quiz</p>
@@ -40,6 +40,79 @@
 
         <p id="status"></p>
     </div>
+
+    <script>
+        // ------ utilitaires pour détecter les modifications ------
+        function getBackTarget() {
+            var target = "/quizzes/mine";
+            try {
+                var params = new URLSearchParams(window.location.search);
+                var from = params.get("from");
+                if (from === "all") {
+                    target = "/quizzes/all";
+                }
+            } catch (_e) { }
+            return target;
+        }
+
+        function snapshotFromForm() {
+            var titreEl = document.getElementById("quizTitle");
+            var titre = titreEl ? titreEl.value.trim() : "";
+
+            var catEl = document.getElementById("categorieSelect");
+            var cat = "";
+            if (catEl && catEl.value) cat = catEl.value.trim();
+
+            var questions = [];
+            var cards = document.querySelectorAll(".question-card");
+            for (var i = 0; i < cards.length; i++) {
+                var card = cards[i];
+                var enonceEl = card.querySelector('[data-role="enonce"]');
+                var enonce = enonceEl ? enonceEl.value.trim() : "";
+
+                var typeValue = "simple";
+                var tBtns = card.querySelectorAll(".type-btn");
+                for (var j = 0; j < tBtns.length; j++) {
+                    var b = tBtns[j];
+                    var isActive = b.classList.contains("active");
+                    if (isActive && b.getAttribute("data-type") === "multiple") {
+                        typeValue = "multiple";
+                    }
+                }
+
+                var choices = [];
+                var corr = [];
+                var container = card.querySelector('[data-role="choices"]');
+                var items = container ? container.querySelectorAll(".choice-item") : [];
+                for (var k = 0; k < items.length; k++) {
+                    var it = items[k];
+                    var textEl = it.querySelector('[data-role="choice-text"]');
+                    var txt = textEl ? textEl.value.trim() : "";
+                    var id = "c" + (k + 1);
+                    choices.push({ id: id, texte: txt });
+                    var chk = it.querySelector(".choice-checkbox");
+                    if (chk && chk.checked) corr.push(id);
+                }
+
+                questions.push({
+                    enonce: enonce,
+                    types: typeValue,
+                    choisir: choices,
+                    correction: corr
+                });
+            }
+
+            return {
+                titre: titre,
+                categorie: cat,
+                questions: questions
+            };
+        }
+
+        // Snapshot initial (photo du formulaire à l’ouverture)
+        window._initialSnapshot = null;
+    </script>
+
 
     <script>
         // ========= Chargement des catégories =========
@@ -225,7 +298,15 @@
             const input = document.createElement('input');
             input.className = 'choice-checkbox';
             input.name = 'correct_q' + questionDiv.dataset.qIndex;
-            input.type = 'checkbox'; // par défaut, sera remis lors de setQuestionType
+
+            // 👉 type selon le bouton actif
+            let curType = 'simple';
+            const activeBtn = questionDiv.querySelector('.type-btn.active');
+            if (activeBtn && activeBtn.getAttribute('data-type') === 'multiple') {
+                curType = 'multiple';
+            }
+            input.type = (curType === 'simple') ? 'radio' : 'checkbox';
+
             choiceDiv.appendChild(input);
 
             const text = document.createElement('input');
@@ -247,13 +328,13 @@
             choicesContainer.appendChild(choiceDiv);
         }
 
-        function fillFormFromQuiz(qz) {
+        async function fillFormFromQuiz(qz) {
             // titre
             const titleEl = document.getElementById('quizTitle');
             titleEl.value = qz.titre || "";
 
-            // catégorie
-            loadCategoriesAndSelect(qz.categorie || "");
+            // catégorie (attendre le fetch + la sélection)
+            await loadCategoriesAndSelect(qz.categorie || "");
 
             // questions
             const list = Array.isArray(qz.questions) ? qz.questions : [];
@@ -264,9 +345,19 @@
                 const enonce = qDiv.querySelector('[data-role="enonce"]');
                 enonce.value = q.enonce || "";
 
-                // type
+                // type robuste
                 let typeValue = "simple";
-                if (q.types && q.types === "multiple") {
+                if (q.types) {
+                    const t = String(q.types).toLowerCase();
+                    if (t === "multiple" || t === "multi" || t === "mul") {
+                        typeValue = "multiple";
+                    } else if (t === "unique" || t === "single" || t === "simple") {
+                        typeValue = "simple";
+                    }
+                }
+                // si plusieurs bonnes réponses → multiple
+                const corr = Array.isArray(q.correction) ? q.correction : [];
+                if (typeValue === "simple" && corr.length > 1) {
                     typeValue = "multiple";
                 }
                 setQuestionType(qDiv, typeValue);
@@ -281,19 +372,23 @@
                     text.value = choisir[j].texte || "";
 
                     const input = last.querySelector('.choice-checkbox');
-                    // correction (bonne réponse)
-                    let checked = false;
-                    const corr = Array.isArray(q.correction) ? q.correction : [];
                     const idToCheck = "c" + (j + 1);
+                    let checked = false;
                     for (let k = 0; k < corr.length; k++) {
                         if (corr[k] === idToCheck) {
                             checked = true;
+                            break;
                         }
                     }
                     input.checked = checked;
                 }
+
+                // 🔁 IMPORTANT: remettre le type après avoir ajouté les choix
+                setQuestionType(qDiv, typeValue);
             }
         }
+
+
 
         // ========= Soumission =========
         document.getElementById('addQ').addEventListener('click', function () {
@@ -429,24 +524,39 @@
         });
 
         // Initialisation
-        (function init() {
+        (async function init() {
             const qz = window.currentQuiz || {};
             document.getElementById('questions').innerHTML = '';
-            fillFormFromQuiz(qz);
+            await fillFormFromQuiz(qz);   // ⬅️ on attend le remplissage (catégorie incluse)
+
+            // maintenant seulement, on prend le snapshot initial
+            window._initialSnapshot = snapshotFromForm();
         })();
+
     </script>
     <script>
-  (function () {
-    var btn = document.getElementById("closeEdit");
-    if (!btn) return;
+        (function () {
+            var btn = document.getElementById("closeEdit");
+            if (!btn) return;
 
-    btn.addEventListener("click", function (e) {
-      e.preventDefault();
-      alert("Veuillez cliquer sur « Sauvegarder les modifications » avant de quitter cette page.");
-      // On ne navigue pas : la page reste affichée.
-    });
-  })();
-</script>
+            btn.addEventListener("click", function (e) {
+                e.preventDefault();
+
+                // 🧩 On prend un snapshot actuel
+                var current = snapshotFromForm();
+                var same = JSON.stringify(current) === JSON.stringify(window._initialSnapshot);
+
+                if (same) {
+                    // Rien n’a changé → on quitte sans alerte
+                    window.location.href = getBackTarget();
+                    return;
+                }
+
+                // Il y a eu des modifications
+                alert("Vous avez des modifications non enregistrées.\nVeuillez cliquer sur « Sauvegarder les modifications » avant de quitter cette page.");
+            });
+        })();
+    </script>
 
 </body>
 

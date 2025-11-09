@@ -920,34 +920,37 @@
     "auteurId": "1761866964593"
   },
   {
-    "id": "quiz_1762711898190",
-    "titre": "test?",
+    "id": "quiz_1762718186884",
+    "titre": "sdqdqs",
     "questions": [
       {
         "id": "q1",
-        "enonce": "zzeaea",
+        "enonce": "bbb",
         "types": "simple",
         "choisir": [
           {
             "id": "c1",
-            "texte": "a"
+            "texte": "c"
           },
           {
             "id": "c2",
-            "texte": "b"
+            "texte": "w"
           },
           {
             "id": "c3",
-            "texte": "c"
+            "texte": "q"
           }
         ],
         "correction": [
-          "c3"
+          "c2"
         ]
       }
     ],
-    "faita": "2025-11-09T18:11:38.194Z",
-    "categorie": "Géographie",
-    "auteurId": "1762202977089"
+    "faita": "2025-11-09T19:56:26.891Z",
+    "categorie": "Littérature",
+    "ownerId": "1762202977089",
+    "auteurId": "1762202977089",
+    "createdBy": "1762202977089",
+    "userId": "1762202977089"
   }
 ]
