@@ -430,7 +430,9 @@
           "c1"
         ]
       }
-    ]
+    ],
+    "faita": "2025-11-08T11:04:00Z",
+    "auteurId": "1761866964593"
   },
   {
     "id": "quiz_1762600005",
@@ -718,7 +720,7 @@
           }
         ],
         "correction": [
-          "c2"
+          "c1"
         ]
       },
       {
@@ -744,7 +746,7 @@
           }
         ],
         "correction": [
-          "c2"
+          "c1"
         ]
       },
       {
@@ -770,7 +772,7 @@
           }
         ],
         "correction": [
-          "c2"
+          "c1"
         ]
       }
     ],
@@ -832,9 +834,7 @@
           }
         ],
         "correction": [
-          "c1",
-          "c2",
-          "c3"
+          "c1"
         ]
       },
       {
@@ -864,5 +864,356 @@
         ]
       }
     ]
+  },
+  {
+    "id": "quiz_1762730000001",
+    "titre": "Mathématiques",
+    "categorie": "Mathématiques",
+    "questions": [
+      {
+        "id": "q1",
+        "enonce": "Combien font 2 + 2 ?",
+        "types": "simple",
+        "choisir": [
+          {
+            "id": "c1",
+            "texte": "3"
+          },
+          {
+            "id": "c2",
+            "texte": "4"
+          },
+          {
+            "id": "c3",
+            "texte": "5"
+          },
+          {
+            "id": "c4",
+            "texte": "6"
+          }
+        ],
+        "correction": [
+          "c2"
+        ]
+      },
+      {
+        "id": "q2",
+        "enonce": "Quelle est la valeur de π (pi) arrondie à 3 décimales ?",
+        "types": "simple",
+        "choisir": [
+          {
+            "id": "c1",
+            "texte": "3,142"
+          },
+          {
+            "id": "c2",
+            "texte": "3,124"
+          },
+          {
+            "id": "c3",
+            "texte": "3,412"
+          },
+          {
+            "id": "c4",
+            "texte": "3,241"
+          }
+        ],
+        "correction": [
+          "c1"
+        ]
+      },
+      {
+        "id": "q3",
+        "enonce": "Résoudre 3x = 12",
+        "types": "simple",
+        "choisir": [
+          {
+            "id": "c1",
+            "texte": "2"
+          },
+          {
+            "id": "c2",
+            "texte": "3"
+          },
+          {
+            "id": "c3",
+            "texte": "4"
+          },
+          {
+            "id": "c4",
+            "texte": "6"
+          }
+        ],
+        "correction": [
+          "c3"
+        ]
+      }
+    ],
+    "faita": "2025-11-10T10:00:00Z",
+    "auteurId": "1761866964593"
+  },
+  {
+    "id": "quiz_1762730000002",
+    "titre": "Nature",
+    "categorie": "Nature",
+    "questions": [
+      {
+        "id": "q1",
+        "enonce": "Quel est le plus grand mammifère au monde ?",
+        "types": "simple",
+        "choisir": [
+          {
+            "id": "c1",
+            "texte": "Éléphant d'Afrique"
+          },
+          {
+            "id": "c2",
+            "texte": "Baleine bleue"
+          },
+          {
+            "id": "c3",
+            "texte": "Girafe"
+          },
+          {
+            "id": "c4",
+            "texte": "Ours polaire"
+          }
+        ],
+        "correction": [
+          "c2"
+        ]
+      },
+      {
+        "id": "q2",
+        "enonce": "La photosynthèse se déroule principalement dans…",
+        "types": "simple",
+        "choisir": [
+          {
+            "id": "c1",
+            "texte": "Les racines"
+          },
+          {
+            "id": "c2",
+            "texte": "Les fleurs"
+          },
+          {
+            "id": "c3",
+            "texte": "Les feuilles"
+          },
+          {
+            "id": "c4",
+            "texte": "Le tronc"
+          }
+        ],
+        "correction": [
+          "c3"
+        ]
+      },
+      {
+        "id": "q3",
+        "enonce": "Parmi les animaux suivants, lesquels sont des herbivores ?",
+        "types": "multiple",
+        "choisir": [
+          {
+            "id": "c1",
+            "texte": "Vache"
+          },
+          {
+            "id": "c2",
+            "texte": "Lion"
+          },
+          {
+            "id": "c3",
+            "texte": "Lapin"
+          },
+          {
+            "id": "c4",
+            "texte": "Aigle"
+          }
+        ],
+        "correction": [
+          "c1",
+          "c3"
+        ]
+      }
+    ],
+    "faita": "2025-11-10T10:05:00Z",
+    "auteurId": "1761866964593"
+  },
+  {
+    "id": "quiz_1762730000003",
+    "titre": "Technologie",
+    "categorie": "Technologie",
+    "questions": [
+      {
+        "id": "q1",
+        "enonce": "Que signifie l’acronyme CPU ?",
+        "types": "simple",
+        "choisir": [
+          {
+            "id": "c1",
+            "texte": "Central Processing Unit"
+          },
+          {
+            "id": "c2",
+            "texte": "Computer Personal Unit"
+          },
+          {
+            "id": "c3",
+            "texte": "Central Program Utility"
+          },
+          {
+            "id": "c4",
+            "texte": "Compute Power Unit"
+          }
+        ],
+        "correction": [
+          "c1"
+        ]
+      },
+      {
+        "id": "q2",
+        "enonce": "Quel langage sert principalement à styliser une page web ?",
+        "types": "simple",
+        "choisir": [
+          {
+            "id": "c1",
+            "texte": "HTML"
+          },
+          {
+            "id": "c2",
+            "texte": "CSS"
+          },
+          {
+            "id": "c3",
+            "texte": "SQL"
+          },
+          {
+            "id": "c4",
+            "texte": "Python"
+          }
+        ],
+        "correction": [
+          "c2"
+        ]
+      },
+      {
+        "id": "q3",
+        "enonce": "Quelle(s) option(s) renforce(nt) la sécurité d’un site web ?",
+        "types": "multiple",
+        "choisir": [
+          {
+            "id": "c1",
+            "texte": "HTTPS"
+          },
+          {
+            "id": "c2",
+            "texte": "Mots de passe forts"
+          },
+          {
+            "id": "c3",
+            "texte": "Désactiver les sauvegardes"
+          },
+          {
+            "id": "c4",
+            "texte": "Mises à jour régulières"
+          }
+        ],
+        "correction": [
+          "c1",
+          "c2",
+          "c4"
+        ]
+      }
+    ],
+    "faita": "2025-11-10T10:10:00Z",
+    "auteurId": "1761866964593"
+  },
+  {
+    "id": "quiz_1762730000004",
+    "titre": "Économie",
+    "categorie": "Économie",
+    "questions": [
+      {
+        "id": "q1",
+        "enonce": "Quelle est la monnaie officielle du Japon ?",
+        "types": "simple",
+        "choisir": [
+          {
+            "id": "c1",
+            "texte": "Won"
+          },
+          {
+            "id": "c2",
+            "texte": "Yen"
+          },
+          {
+            "id": "c3",
+            "texte": "Yuan"
+          },
+          {
+            "id": "c4",
+            "texte": "Baht"
+          }
+        ],
+        "correction": [
+          "c2"
+        ]
+      },
+      {
+        "id": "q2",
+        "enonce": "Que signifie le sigle PIB ?",
+        "types": "simple",
+        "choisir": [
+          {
+            "id": "c1",
+            "texte": "Produit Intérieur Brut"
+          },
+          {
+            "id": "c2",
+            "texte": "Plan d’Investissement Bancaire"
+          },
+          {
+            "id": "c3",
+            "texte": "Produit International Brut"
+          },
+          {
+            "id": "c4",
+            "texte": "Programme Industriel de Base"
+          }
+        ],
+        "correction": [
+          "c1"
+        ]
+      },
+      {
+        "id": "q3",
+        "enonce": "Quand l’offre dépasse la demande, le prix a tendance à…",
+        "types": "simple",
+        "choisir": [
+          {
+            "id": "c1",
+            "texte": "Augmenter"
+          },
+          {
+            "id": "c2",
+            "texte": "Baisser"
+          },
+          {
+            "id": "c3",
+            "texte": "Rester identique"
+          },
+          {
+            "id": "c4",
+            "texte": "Doubler"
+          }
+        ],
+        "correction": [
+          "c2"
+        ]
+      }
+    ],
+    "faita": "2025-11-10T10:15:00Z",
+    "auteurId": "1761866964593"
   }
 ]

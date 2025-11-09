@@ -33,7 +33,7 @@ export async function awardScore(req: Request, res: Response) {
             }
         }
 
-        // 🚀 ajoute vraiment les points
+        // ajoute les points
         const updated = await addPoints(String(me.id), score);
         if (!updated) return bad(res, 404, "Utilisateur introuvable");
 
