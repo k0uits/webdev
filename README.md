@@ -48,7 +48,7 @@ Projet_final/
 ## Identifiants utilisateurs
 
 | Role | Identifiant | Mot de Passe |
-|-----------|--------------|
+|-----------|-----------|--------------|
 | Administrateur | admin@gmail.com | admin123 |
 | Utilisateur | celine@gmail.com | celine123 |
 
