@@ -18,16 +18,12 @@ export interface Quiz {
   questions: Question[];
   faita: string;
   categorie?: string;
+  image?: string;
 
   auteurId?: string;
   ownerId?: string;
   createdBy?: string;
   userId?: string;
-
-
-
-
-  
 }
 
 // --- Définition du chemin vers le fichier de stockage des quiz ---

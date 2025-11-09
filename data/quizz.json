@@ -2,6 +2,7 @@
   {
     "id": "quiz_1762600000",
     "titre": "Géographie",
+    "image": "https://bu.univ-larochelle.fr/wp-content/uploads/2025/03/nuit-de-la-geographie-2-1173x640.png",
     "questions": [
       {
         "id": "q1",
@@ -89,6 +90,7 @@
   {
     "id": "quiz_1762600001",
     "titre": "Sciences",
+    "image": "https://mediatheque.seine-et-marne.fr/sites/mediatheque.seine-et-marne.fr/files/media/images/collection-thematique-sciencestechniques.jpg",
     "questions": [
       {
         "id": "q1",
@@ -176,6 +178,7 @@
   {
     "id": "quiz_1762600002",
     "titre": "Littérature",
+    "image": "https://www.msnocookie.com/image/ms/msimages/blog_gallery/Litterature.jpg",
     "questions": [
       {
         "id": "q1",
@@ -263,6 +266,7 @@
   {
     "id": "quiz_1762600003",
     "titre": "Histoire",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/5/53/Nikolaos_Gyzis_-_Historia.jpg",
     "questions": [
       {
         "id": "q1",
@@ -350,6 +354,7 @@
   {
     "id": "quiz_1762600004",
     "titre": "Cinéma",
+    "image": "https://cdn.sortiraparis.com/images/80/18029/241757-les-17-films-les-plus-attendus-de-2017.jpg",
     "categorie": "Cinéma",
     "questions": [
       {
@@ -435,6 +440,7 @@
   {
     "id": "quiz_1762600005",
     "titre": "Musique",
+    "image": "https://media.istockphoto.com/id/1431567498/fr/vectoriel/illustration-vectorielle-de-notes-de-musique-sur-fond-blanc.jpg?s=612x612&w=0&k=20&c=BlXbPeaCz3PEle5hXy6ndnVw_4OKunNSUInE-QbDYg4=",
     "questions": [
       {
         "id": "q1",
@@ -522,6 +528,7 @@
   {
     "id": "quiz_1762600006",
     "titre": "Sport",
+    "image": "https://img.freepik.com/photos-gratuite/outils-sport_53876-138077.jpg?semt=ais_hybrid&w=740&q=80",
     "questions": [
       {
         "id": "q1",
@@ -609,6 +616,7 @@
   {
     "id": "quiz_1762600007",
     "titre": "Informatique",
+    "image": "https://etudestech.com/wp-content/uploads/2022/12/entreprise-informatique-1536x1024.jpeg",
     "categorie": "Informatique",
     "questions": [
       {
@@ -694,6 +702,7 @@
   {
     "id": "quiz_1762600008",
     "titre": "Cuisine",
+    "image": "https://resize.elle.fr/article_1280/var/plain_site/storage/images/elle-a-table/les-dossiers-de-la-redaction/news-de-la-redaction/nos-solutions-pour-cuisiner-sans-se-prendre-la-tete-4015937/96583948-2-fre-FR/Nos-solutions-pour-cuisiner-sans-se-prendre-la-tete.jpg",
     "questions": [
       {
         "id": "q1",
@@ -781,6 +790,7 @@
   {
     "id": "quiz_1762600009",
     "titre": "Art",
+    "image": "https://img.freepik.com/photos-gratuite/vue-dessus-jolies-mains-femme-dessinant-image-etonnante-toile-dans-atelier-art-moderne-confortable_574295-563.jpg?semt=ais_hybrid&w=740&q=80",
     "categorie": "Art",
     "questions": [
       {

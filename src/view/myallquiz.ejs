@@ -318,9 +318,17 @@
                 card.className = "quiz-card";
                 card.setAttribute("data-quiz-id", quiz.id);
                 card.innerHTML = `
-      <div class="thumb"></div>
-      <div class="title">${quiz.titre}</div>
-    `;
+                    <div class="thumb" style="
+                        ${quiz.image
+                            ? `background-image:url('${quiz.image}');
+                            background-size:cover;
+                            background-position:center;
+                            border:none;`
+                        : ''}
+                    "></div>
+                    <div class="title">${quiz.titre}</div>
+                `;
+
 
                 card.style.cursor = "pointer";
                 card.addEventListener("click", () => {

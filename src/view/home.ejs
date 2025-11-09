@@ -133,15 +133,31 @@
         const card = document.createElement("div");
         card.className = "quiz-card";
         card.setAttribute("data-quiz-id", quiz.id);
-        card.innerHTML = `
-          <div class="thumb"></div>
-          <div class="title">${quiz.titre}</div>
-        `;
+
+        const thumb = document.createElement("div");
+        thumb.className = "thumb";
+
+        if (quiz.image) {
+          thumb.style.backgroundImage = `url('${quiz.image}')`;
+          thumb.style.backgroundSize = "cover";
+          thumb.style.backgroundPosition = "center";
+          thumb.style.border = "none";
+          thumb.style.backgroundColor = "transparent";
+        }
+
+        const title = document.createElement("div");
+        title.className = "title";
+        title.textContent = quiz.titre;
+
+        card.appendChild(thumb);
+        card.appendChild(title);
+
         card.style.cursor = "pointer";
         card.addEventListener("click", () => {
           location.href = "/quizzes/" + encodeURIComponent(quiz.id);
         });
 
+        const me = window.currentUser || null;
         const canDelete =
           quiz && quiz.id && quiz.id !== "#" && me &&
           (me.role === "admin" || String(me.id) === String(quiz.auteurId));
@@ -180,8 +196,10 @@
           controls.appendChild(delBtn);
           card.appendChild(controls);
         }
+
         return card;
       };
+
 
       const updateClone = () => {
         if (!track2) return;

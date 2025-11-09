@@ -31,6 +31,10 @@
       <input type="text" id="quizTitle" placeholder="Titre du quiz" required>
     </div>
 
+    <div class="form-group">
+      <input type="text" id="quizImage" placeholder="Lien de l'image du quiz (optionnel)">
+    </div>
+
     <div id="questions"></div>
 
     <button class="btn-add" id="addQ">+ Ajouter une question</button>
@@ -41,7 +45,6 @@
   </div>
 
   <script>
-
     async function loadCategories() {
       const select = document.getElementById('categorieSelect');
       if (!select) return;
@@ -238,6 +241,7 @@
       statusEl.className = '';
 
       const titre = document.getElementById('quizTitle').value.trim();
+      const image = document.getElementById('quizImage').value.trim();
 
       if (!titre) {
         statusEl.textContent = 'Veuillez entrer un titre';
@@ -312,6 +316,7 @@
       const quizData = {
         id: `quiz_${Date.now()}`,
         titre,
+        image,
         questions,
         categorie
       };
@@ -330,6 +335,7 @@
           statusEl.className = 'success';
 
           document.getElementById('quizTitle').value = '';
+          document.getElementById('quizImage').value = '';
           document.getElementById('questions').innerHTML = '';
 
           setTimeout(() => {
@@ -347,7 +353,6 @@
 
     createQuestion();
     loadCategories();
-    
   </script>
 
 </body>

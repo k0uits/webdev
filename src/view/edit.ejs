@@ -32,6 +32,13 @@
             <input type="text" id="quizTitle" placeholder="Titre du quiz" required>
         </div>
 
+        <div class="form-group">
+            <label for="quizImage" style="display:block; margin-bottom:6px; font-weight:600;">Image
+                (optionnelle)</label>
+            <input type="text" id="quizImage" placeholder="Lien URL de l’image (optionnel)"
+                style="width:100%; padding:10px 12px; border:1px solid #cbd3df; border-radius:8px; font-size:0.95rem;">
+        </div>
+
         <div id="questions"></div>
 
         <button class="btn-add" id="addQ">+ Ajouter une question</button>
@@ -336,6 +343,13 @@
             // catégorie (attendre le fetch + la sélection)
             await loadCategoriesAndSelect(qz.categorie || "");
 
+            // image
+            const imgEl = document.getElementById('quizImage');
+            if (imgEl) {
+                imgEl.value = qz.image || "";
+            }
+
+
             // questions
             const list = Array.isArray(qz.questions) ? qz.questions : [];
             for (let i = 0; i < list.length; i++) {
@@ -482,7 +496,8 @@
                 id: window.currentQuiz.id,
                 titre: titre,
                 questions: questions,
-                categorie: categorie
+                categorie: categorie,
+                image: (document.getElementById('quizImage')?.value || "").trim()
             };
 
             try {
@@ -494,7 +509,7 @@
 
                 const data = await resp.json().catch(function () { return {}; });
 
-                if (resp.ok) {
+                if (resp.ok) {  
                     statusEl.textContent = data.message || 'Modifications enregistrées !';
                     statusEl.className = 'success';
 

@@ -52,6 +52,7 @@ export function listQuizzes(_req: Request, res: Response) {
     const out = quizzes.map((q: any) => ({
       id: q.id,
       titre: q.titre,
+      image: q.image || null,
       auteurId: q.auteurId ?? q.auteurid ?? null,
       categorie: q.categorie ?? q.category ?? ""
     }));
@@ -65,7 +66,7 @@ export function listQuizzes(_req: Request, res: Response) {
 // --- Crée un nouveau quiz à partir des données envoyées dans la requête ---
 export function createQuiz(req: Request, res: Response) {
   try {
-    const { id, titre, questions, categorie } = req.body;
+    const { id, titre, image, questions, categorie } = req.body;
 
     if (!id || !titre || !Array.isArray(questions))
       return bad(res, 400, "Champs manquants ou invalides");
@@ -82,19 +83,15 @@ export function createQuiz(req: Request, res: Response) {
     const newQuiz: Quiz = {
       id,
       titre,
+      image: (image || "").trim(), // ✅ ajout du lien d’image
       questions: questions as Question[],
       faita: new Date().toISOString(),
       categorie: rawCat,
 
       ownerId: String(me.id),
-
-      // --- compatibilité anciens champs
       auteurId: String(me.id),
       createdBy: String(me.id),
       userId: String(me.id)
-
-
-      //auteurId: String(me.id)
     };
 
     quizzes.push(newQuiz);
@@ -104,6 +101,7 @@ export function createQuiz(req: Request, res: Response) {
     return bad(res, 500, "Erreur création quiz");
   }
 }
+
 
 
 export function getQuizById(req: Request, res: Response): void {
@@ -455,6 +453,13 @@ export async function updateQuiz(req: Request, res: Response) {
   updated.titre = titre;
   updated.categorie = categorie;
   updated.questions = questions;
+  if (typeof body.image === "string") {
+    const trimmed = body.image.trim();
+    // si vide → on supprime l'image
+    updated.image = trimmed.length > 0 ? trimmed : null;
+  } else {
+    updated.image = existing.image || null;
+  }
   // on NE CHANGE PAS updated.id
   // on NE TOUCHE PAS aux champs de propriété (ownerId, ownerEmail, auteurId, auteurEmail, etc.)
 
