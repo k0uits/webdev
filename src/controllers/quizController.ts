@@ -262,4 +262,138 @@ export function deleteCategory(req: Request, res: Response) {
   }
 }
 
+// --- GET /quizzes/:id/edit ---
+export async function getEditPage(req: Request, res: Response) {
+  const anyReq: any = req;
+  if (!anyReq.user) {
+    return res.status(401).send("Authentification requise");
+  }
+
+  const id = String(req.params.id);
+  const chemin = path.join(__dirname, "../../data/quizz.json");
+  if (!fs.existsSync(chemin)) {
+    fs.writeFileSync(chemin, "[]", { encoding: "utf-8" });
+  }
+
+  const raw = fs.readFileSync(chemin, "utf-8");
+  const quizzes = raw.trim() ? JSON.parse(raw) : [];
+  let found = null;
+  for (let i = 0; i < quizzes.length; i++) {
+    if (String(quizzes[i].id) === id) {
+      found = quizzes[i];
+      break;
+    }
+  }
+  if (!found) {
+    return res.status(404).send("Quiz introuvable");
+  }
+
+  // autorisation: admin ou propriétaire
+  let isAdmin = false;
+  if (anyReq.user.role && String(anyReq.user.role) === "admin") {
+    isAdmin = true;
+  }
+
+  let isOwner = false;
+  if (found.ownerId !== undefined && found.ownerId !== null) {
+    isOwner = String(found.ownerId) === String(anyReq.user.id);
+  } else {
+    if (found.ownerEmail && anyReq.user.email) {
+      isOwner = String(found.ownerEmail) === String(anyReq.user.email);
+    }
+  }
+
+  if (!isAdmin && !isOwner) {
+    return res.status(403).send("Vous n'avez pas le droit de modifier ce quiz");
+  }
+
+  // rendre la vue d'édition
+  return res.render("edit", { user: anyReq.user, quiz: found });
+}
+
+// --- POST /quizzes/:id/edit ---
+export async function updateQuiz(req: Request, res: Response) {
+  const anyReq: any = req;
+  if (!anyReq.user) {
+    return res.status(401).json({ ok: false, message: "Authentification requise" });
+  }
+
+  const id = String(req.params.id);
+  const body = req.body || {};
+
+  // validations minimales
+  const titre = (body.titre || "").toString().trim();
+  const categorie = (body.categorie || "").toString().trim();
+  const questions = Array.isArray(body.questions) ? body.questions : [];
+
+  if (!titre) return res.status(400).json({ ok: false, message: "Titre requis" });
+  if (!categorie) return res.status(400).json({ ok: false, message: "Catégorie requise" });
+  if (questions.length === 0) {
+    return res.status(400).json({ ok: false, message: "Au moins une question est requise" });
+  }
+
+  const fs = await import("fs");
+  const path = await import("path");
+  const chemin = path.join(__dirname, "../../data/quizz.json");
+  if (!fs.existsSync(chemin)) {
+    fs.writeFileSync(chemin, "[]", { encoding: "utf-8" });
+  }
+
+  const raw = fs.readFileSync(chemin, "utf-8");
+  const quizzes = raw.trim() ? JSON.parse(raw) : [];
+
+  // retrouver l'objet existant
+  let index = -1;
+  for (let i = 0; i < quizzes.length; i++) {
+    if (String(quizzes[i].id) === id) {
+      index = i;
+      break;
+    }
+  }
+  if (index === -1) {
+    return res.status(404).json({ ok: false, message: "Quiz introuvable" });
+  }
+
+  const existing = quizzes[index];
+
+  // autorisation: admin ou propriétaire (ownerId/auteurId ou ownerEmail/auteurEmail)
+  let isAdmin = false;
+  if (anyReq.user.role && String(anyReq.user.role) === "admin") {
+    isAdmin = true;
+  }
+
+  let isOwner = false;
+  if (existing.ownerId !== undefined && existing.ownerId !== null) {
+    isOwner = String(existing.ownerId) === String(anyReq.user.id);
+  } else if (existing.auteurId !== undefined && existing.auteurId !== null) {
+    isOwner = String(existing.auteurId) === String(anyReq.user.id);
+  } else {
+    // fallback email si ton ancien schéma stockait l’email
+    if (existing.ownerEmail && anyReq.user.email) {
+      isOwner = String(existing.ownerEmail) === String(anyReq.user.email);
+    } else if (existing.auteurEmail && anyReq.user.email) {
+      isOwner = String(existing.auteurEmail) === String(anyReq.user.email);
+    }
+  }
+
+  if (!isAdmin && !isOwner) {
+    return res.status(403).json({ ok: false, message: "Vous n'avez pas le droit de modifier ce quiz" });
+  }
+
+  // >>>>>>>>> CORRECTION CRITIQUE ICI <<<<<<<<<
+  // On conserve tout l'objet existant (dont les champs de propriété),
+  // et on met à jour uniquement titre/categorie/questions.
+  const updated = { ...existing };
+  updated.titre = titre;
+  updated.categorie = categorie;
+  updated.questions = questions;
+  // on NE CHANGE PAS updated.id
+  // on NE TOUCHE PAS aux champs de propriété (ownerId, ownerEmail, auteurId, auteurEmail, etc.)
+
+  quizzes[index] = updated;
+  fs.writeFileSync(chemin, JSON.stringify(quizzes, null, 2), { encoding: "utf-8" });
+
+  return res.json({ ok: true, message: "Quiz mis à jour" });
+}
+
 

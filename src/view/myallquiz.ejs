@@ -324,7 +324,14 @@
 
                 card.style.cursor = "pointer";
                 card.addEventListener("click", () => {
-                    const back = (mode === "all") ? "?from=all" : (mode === "mine" ? "?from=mine" : "");
+                    var back = "";
+                    if (mode === "all") {
+                        back = "?from=all";
+                    } else {
+                        if (mode === "mine") {
+                            back = "?from=mine";
+                        }
+                    }
                     location.href = "/quizzes/" + encodeURIComponent(quiz.id) + back;
                 });
 
@@ -380,6 +387,24 @@
                     });
 
                     controls.appendChild(delBtn);
+
+                    const editBtn = document.createElement("button");
+                    editBtn.type = "button";
+                    editBtn.className = "btn-edit";
+                    editBtn.textContent = "Modifier";
+                    editBtn.style.marginLeft = "8px";
+                    editBtn.addEventListener("click", function (e) {
+                        e.stopPropagation();
+                        var back = "?from=mine";
+                        if (mode === "all") {
+                            back = "?from=all";
+                        }
+                        location.href = "/quizzes/" + encodeURIComponent(quiz.id) + "/edit" + back;
+                    });
+
+                    controls.appendChild(editBtn);
+
+
                     card.appendChild(controls);
                 }
 

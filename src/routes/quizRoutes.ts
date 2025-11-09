@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getCreatePage, listQuizzes, createQuiz, getQuizById, deleteQuiz, showQuizPage, getCategories, addCategory, deleteCategory } from "../controllers/quizController";
+import { getCreatePage, listQuizzes, createQuiz, getQuizById, deleteQuiz, showQuizPage, getCategories, addCategory, deleteCategory, getEditPage, updateQuiz } from "../controllers/quizController";
 import { ensureAuthenticated, ensureAuthenticatedPage } from "../middleware/auth";
 import { requireAdmin } from "../middleware/authAdmin";
 
@@ -14,6 +14,10 @@ router.get("/quizzes/all", (req, res) => {
     const anyReq: any = req;
     res.render("myallquiz", { user: anyReq.user || null, mode: "all" });
 });
+
+ // EDITION
+router.get("/quizzes/:id/edit", ensureAuthenticated, getEditPage);
+router.post("/quizzes/:id/edit", ensureAuthenticated, updateQuiz);
 
 // Page de création (formulaire)
 router.get("/quizzes/new", ensureAuthenticatedPage, getCreatePage);
@@ -42,5 +46,7 @@ router.post("/categories", ensureAuthenticated, requireAdmin, addCategory);
 
 // suppression catégorie réservée aux admins
 router.delete("/categories/:name", ensureAuthenticated, requireAdmin, deleteCategory);
+
+
 
 export default router;

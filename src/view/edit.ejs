@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modifier le quiz</title>
+    <link rel="stylesheet" href="/create.css">
+</head>
+
+<body>
+    <div class="container">
+        <script>
+            window.currentUser = JSON.parse('<%- JSON.stringify(user || null) %>');
+            window.currentQuiz = JSON.parse('<%- JSON.stringify(quiz) %>'); // quiz envoyé par le contrôleur
+        </script>
+
+        <a href="#" id="closeEdit" class="close-btn" role="button" aria-label="Restez sur la page">×</a>
+
+        <h1>Modifier le quiz</h1>
+        <p class="subtitle">Mettez à jour les informations de votre quiz</p>
+
+        <div class="form-group">
+            <label for="categorieSelect" style="display:block; margin-bottom:6px; font-weight:600;">Catégorie</label>
+            <select id="categorieSelect" required
+                style="width:100%; padding:10px 12px; border:1px solid #cbd3df; border-radius:8px; font-size:0.95rem;">
+                <option value="" disabled selected>Chargement…</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <input type="text" id="quizTitle" placeholder="Titre du quiz" required>
+        </div>
+
+        <div id="questions"></div>
+
+        <button class="btn-add" id="addQ">+ Ajouter une question</button>
+
+        <button class="btn-submit" id="saveBtn">Sauvegarder les modifications</button>
+
+        <p id="status"></p>
+    </div>
+
+    <script>
+        // ========= Chargement des catégories =========
+        async function loadCategoriesAndSelect(currentValue) {
+            const select = document.getElementById('categorieSelect');
+            if (!select) return;
+
+            const me = window.currentUser || null;
+            let isAdmin = false;
+            if (me && me.role === 'admin') {
+                isAdmin = true;
+            }
+
+            try {
+                const res = await fetch('/categories');
+                const cats = await res.json();
+
+                select.innerHTML = '';
+
+                const def = document.createElement('option');
+                def.value = '';
+                def.textContent = '— Choisir une catégorie —';
+                def.disabled = true;
+                select.appendChild(def);
+
+                const list = Array.isArray(cats) ? cats : [];
+                for (let i = 0; i < list.length; i++) {
+                    const cat = list[i];
+                    const opt = document.createElement('option');
+                    opt.value = cat;
+                    opt.textContent = cat;
+                    select.appendChild(opt);
+                }
+
+                if (isAdmin) {
+                    const addOpt = document.createElement('option');
+                    addOpt.value = '__new__';
+                    addOpt.textContent = '➕ Nouvelle catégorie…';
+                    select.appendChild(addOpt);
+
+                    select.addEventListener('change', async () => {
+                        if (select.value === '__new__') {
+                            const name = (prompt("Nom de la nouvelle catégorie :") || '').trim();
+                            if (!name) { select.value = currentValue || ''; return; }
+                            try {
+                                const resp = await fetch('/categories', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ name })
+                                });
+                                const data = await resp.json().catch(() => ({}));
+                                if (!resp.ok) {
+                                    alert(data.message || 'Erreur ajout catégorie');
+                                    select.value = currentValue || '';
+                                    return;
+                                }
+                                const opt = document.createElement('option');
+                                opt.value = data.name;
+                                opt.textContent = data.name;
+                                select.insertBefore(opt, addOpt);
+                                select.value = data.name;
+                                alert('Catégorie ajoutée ✅');
+                            } catch {
+                                alert('Erreur réseau');
+                                select.value = currentValue || '';
+                            }
+                        }
+                    });
+                }
+
+                // sélectionner la valeur actuelle
+                if (currentValue) {
+                    select.value = currentValue;
+                    if (select.value !== currentValue) {
+                        select.value = '';
+                    }
+                } else {
+                    select.value = '';
+                }
+
+            } catch (e) {
+                console.error("Erreur chargement catégories:", e);
+                select.innerHTML = '<option value="" disabled selected>Erreur de chargement</option>';
+            }
+        }
+
+        // ========= Génération / édition Questions =========
+        function createQuestionCard() {
+            const questions = document.querySelectorAll('.question-card');
+            const qIndex = questions.length + 1;
+
+            const questionDiv = document.createElement('div');
+            questionDiv.className = 'question-card';
+            questionDiv.dataset.qIndex = qIndex;
+
+            questionDiv.innerHTML = `
+        <div class="question-header">
+          <span class="question-title">Question ${qIndex}</span>
+          <button type="button" class="btn-delete-question">Supprimer</button>
+        </div>
+        <input type="text" class="question-input" placeholder="Énoncé de la question" data-role="enonce" required>
+        <div class="type-selector">
+          <button type="button" class="type-btn" data-type="simple">Choix unique</button>
+          <button type="button" class="type-btn" data-type="multiple">Choix multiple</button>
+        </div>
+        <div class="choices-container" data-role="choices"></div>
+        <button type="button" class="btn-add-choice">+ Ajouter une option</button>
+        <div class="hint">Cochez la ou les bonne(s) réponse(s)</div>
+      `;
+
+            // bind des events (sans ternaire)
+            const delQ = questionDiv.querySelector('.btn-delete-question');
+            delQ.addEventListener('click', function () {
+                questionDiv.remove();
+                renumberQuestions();
+            });
+
+            const typeBtns = questionDiv.querySelectorAll('.type-btn');
+            for (let i = 0; i < typeBtns.length; i++) {
+                const b = typeBtns[i];
+                b.addEventListener('click', function () {
+                    setQuestionType(questionDiv, b.getAttribute('data-type'));
+                });
+            }
+
+            const addChoiceBtn = questionDiv.querySelector('.btn-add-choice');
+            addChoiceBtn.addEventListener('click', function () {
+                addChoice(questionDiv);
+            });
+
+            document.getElementById('questions').appendChild(questionDiv);
+            renumberQuestions();
+            return questionDiv;
+        }
+
+        function renumberQuestions() {
+            const questions = document.querySelectorAll('.question-card');
+            for (let i = 0; i < questions.length; i++) {
+                const q = questions[i];
+                const idx = i + 1;
+                q.dataset.qIndex = idx;
+                const t = q.querySelector('.question-title');
+                t.textContent = "Question " + idx;
+                const inputs = q.querySelectorAll('.choice-checkbox');
+                for (let j = 0; j < inputs.length; j++) {
+                    inputs[j].name = "correct_q" + idx;
+                }
+            }
+        }
+
+        function setQuestionType(questionDiv, type) {
+            const buttons = questionDiv.querySelectorAll('.type-btn');
+            for (let i = 0; i < buttons.length; i++) {
+                const b = buttons[i];
+                const isActive = b.getAttribute('data-type') === type;
+                if (isActive) {
+                    b.classList.add('active');
+                } else {
+                    b.classList.remove('active');
+                }
+            }
+
+            const qIndex = questionDiv.dataset.qIndex;
+            const choiceInputs = questionDiv.querySelectorAll('.choice-checkbox');
+            for (let i = 0; i < choiceInputs.length; i++) {
+                const input = choiceInputs[i];
+                if (type === 'simple') {
+                    input.type = 'radio';
+                } else {
+                    input.type = 'checkbox';
+                }
+                input.name = 'correct_q' + qIndex;
+            }
+        }
+
+        function addChoice(questionDiv) {
+            const choicesContainer = questionDiv.querySelector('[data-role="choices"]');
+            const choiceIndex = choicesContainer.children.length + 1;
+
+            const choiceDiv = document.createElement('div');
+            choiceDiv.className = 'choice-item';
+
+            const input = document.createElement('input');
+            input.className = 'choice-checkbox';
+            input.name = 'correct_q' + questionDiv.dataset.qIndex;
+            input.type = 'checkbox'; // par défaut, sera remis lors de setQuestionType
+            choiceDiv.appendChild(input);
+
+            const text = document.createElement('input');
+            text.type = 'text';
+            text.className = 'choice-input';
+            text.placeholder = 'Option ' + choiceIndex;
+            text.setAttribute('data-role', 'choice-text');
+            choiceDiv.appendChild(text);
+
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'btn-remove-choice';
+            btn.textContent = '✕';
+            btn.addEventListener('click', function () {
+                choiceDiv.remove();
+            });
+            choiceDiv.appendChild(btn);
+
+            choicesContainer.appendChild(choiceDiv);
+        }
+
+        function fillFormFromQuiz(qz) {
+            // titre
+            const titleEl = document.getElementById('quizTitle');
+            titleEl.value = qz.titre || "";
+
+            // catégorie
+            loadCategoriesAndSelect(qz.categorie || "");
+
+            // questions
+            const list = Array.isArray(qz.questions) ? qz.questions : [];
+            for (let i = 0; i < list.length; i++) {
+                const q = list[i];
+                const qDiv = createQuestionCard();
+
+                const enonce = qDiv.querySelector('[data-role="enonce"]');
+                enonce.value = q.enonce || "";
+
+                // type
+                let typeValue = "simple";
+                if (q.types && q.types === "multiple") {
+                    typeValue = "multiple";
+                }
+                setQuestionType(qDiv, typeValue);
+
+                // choix
+                const choicesContainer = qDiv.querySelector('[data-role="choices"]');
+                const choisir = Array.isArray(q.choisir) ? q.choisir : [];
+                for (let j = 0; j < choisir.length; j++) {
+                    addChoice(qDiv);
+                    const last = choicesContainer.lastElementChild;
+                    const text = last.querySelector('[data-role="choice-text"]');
+                    text.value = choisir[j].texte || "";
+
+                    const input = last.querySelector('.choice-checkbox');
+                    // correction (bonne réponse)
+                    let checked = false;
+                    const corr = Array.isArray(q.correction) ? q.correction : [];
+                    const idToCheck = "c" + (j + 1);
+                    for (let k = 0; k < corr.length; k++) {
+                        if (corr[k] === idToCheck) {
+                            checked = true;
+                        }
+                    }
+                    input.checked = checked;
+                }
+            }
+        }
+
+        // ========= Soumission =========
+        document.getElementById('addQ').addEventListener('click', function () {
+            createQuestionCard();
+        });
+
+        document.getElementById('saveBtn').addEventListener('click', async function () {
+            const statusEl = document.getElementById('status');
+            statusEl.textContent = '';
+            statusEl.className = '';
+
+            const titre = document.getElementById('quizTitle').value.trim();
+            if (!titre) {
+                statusEl.textContent = 'Veuillez entrer un titre';
+                statusEl.className = 'error';
+                return;
+            }
+
+            const questionCards = document.querySelectorAll('.question-card');
+            if (questionCards.length === 0) {
+                statusEl.textContent = 'Ajoutez au moins une question';
+                statusEl.className = 'error';
+                return;
+            }
+
+            const questions = [];
+            for (let i = 0; i < questionCards.length; i++) {
+                const card = questionCards[i];
+                const enonce = card.querySelector('[data-role="enonce"]').value.trim();
+                if (!enonce) {
+                    statusEl.textContent = 'Toutes les questions doivent avoir un énoncé';
+                    statusEl.className = 'error';
+                    return;
+                }
+
+                // type
+                const activeBtn = card.querySelector('.type-btn.active');
+                let typeValue = "simple";
+                if (activeBtn && activeBtn.getAttribute('data-type') === 'multiple') {
+                    typeValue = "multiple";
+                }
+
+                const choicesContainer = card.querySelector('[data-role="choices"]');
+                const choiceItems = choicesContainer.querySelectorAll('.choice-item');
+
+                const choisir = [];
+                const correction = [];
+
+                for (let j = 0; j < choiceItems.length; j++) {
+                    const item = choiceItems[j];
+                    const text = item.querySelector('[data-role="choice-text"]').value.trim();
+                    if (!text) continue;
+
+                    const choixId = 'c' + (j + 1);
+                    choisir.push({ id: choixId, texte: text });
+
+                    const ch = item.querySelector('.choice-checkbox');
+                    if (ch.checked) {
+                        correction.push(choixId);
+                    }
+                }
+
+                if (choisir.length < 2) {
+                    statusEl.textContent = 'Chaque question doit avoir au moins 2 options';
+                    statusEl.className = 'error';
+                    return;
+                }
+                if (correction.length === 0) {
+                    statusEl.textContent = 'Chaque question doit avoir au moins une bonne réponse';
+                    statusEl.className = 'error';
+                    return;
+                }
+
+                questions.push({
+                    id: 'q' + (questions.length + 1),
+                    enonce: enonce,
+                    types: typeValue,
+                    choisir: choisir,
+                    correction: correction
+                });
+            }
+
+            const categorie = (document.getElementById('categorieSelect') && document.getElementById('categorieSelect').value) ? document.getElementById('categorieSelect').value.trim() : '';
+            if (!categorie) {
+                statusEl.textContent = 'Veuillez choisir une catégorie';
+                statusEl.className = 'error';
+                return;
+            }
+
+            const quizData = {
+                id: window.currentQuiz.id,
+                titre: titre,
+                questions: questions,
+                categorie: categorie
+            };
+
+            try {
+                const resp = await fetch('/quizzes/' + encodeURIComponent(window.currentQuiz.id) + '/edit', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(quizData)
+                });
+
+                const data = await resp.json().catch(function () { return {}; });
+
+                if (resp.ok) {
+                    statusEl.textContent = data.message || 'Modifications enregistrées !';
+                    statusEl.className = 'success';
+
+                    // Redirection contextuelle selon ?from=mine|all (pas de ternaire)
+                    var target = '/quizzes/mine';
+                    try {
+                        var params = new URLSearchParams(window.location.search);
+                        var from = params.get('from');
+                        if (from === 'all') {
+                            target = '/quizzes/all';
+                        }
+                    } catch (_e) {
+                        // ignore
+                    }
+
+                    setTimeout(function () {
+                        window.location.href = target;
+                    }, 800);
+                } else {
+                    statusEl.textContent = data.message || 'Erreur lors de l’enregistrement';
+                    statusEl.className = 'error';
+                }
+            } catch (e) {
+                statusEl.textContent = 'Erreur réseau';
+                statusEl.className = 'error';
+            }
+        });
+
+        // Initialisation
+        (function init() {
+            const qz = window.currentQuiz || {};
+            document.getElementById('questions').innerHTML = '';
+            fillFormFromQuiz(qz);
+        })();
+    </script>
+    <script>
+  (function () {
+    var btn = document.getElementById("closeEdit");
+    if (!btn) return;
+
+    btn.addEventListener("click", function (e) {
+      e.preventDefault();
+      alert("Veuillez cliquer sur « Sauvegarder les modifications » avant de quitter cette page.");
+      // On ne navigue pas : la page reste affichée.
+    });
+  })();
+</script>
+
+</body>
+
+</html>
