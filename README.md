@@ -1,8 +1,37 @@
 # Projet MVC Node.js / TypeScript
 
 ## Description
-Ce projet met en œuvre une architecture **MVC (Model - View - Controller)** avec **Node.js** et **Express**, développée en **TypeScript**.  
-L’objectif est de séparer clairement la logique métier (models), la logique de contrôle (controllers), et la partie interface/utilisateur (views).
+Ce projet met en œuvre une architecture MVC (Model - View - Controller) avec Node.js, Express et TypeScript.
+L’objectif est de séparer clairement la logique métier (models), la logique de contrôle (controllers) et la partie interface utilisateur (views) afin d’assurer une structure claire, maintenable et évolutive.
+
+🌐 Fonctionnalités principales
+
+🧠 Création, gestion et lecture de quiz
+Les utilisateurs peuvent créer leurs propres quiz, les modifier, les supprimer, ou répondre à ceux des autres.
+Chaque quiz contient un titre, des questions à choix simple ou multiple, et une catégorie (ex. : Géographie, Histoire, Informatique, etc.).
+
+👤 Système d’authentification complet
+Les utilisateurs peuvent s’inscrire, se connecter et gérer leur profil (nom, email, mot de passe).
+Les sessions sont gérées via express-session et stockées localement grâce à connect-sqlite3.
+
+🛡️ Gestion des rôles (user / admin)
+Les administrateurs disposent de droits supplémentaires : suppression d’utilisateurs, gestion des catégories, ou modération des quiz.
+
+🏷️ Catégories de quiz
+Les quiz sont classés par catégorie, facilitant la recherche et la navigation.
+Les administrateurs peuvent ajouter ou supprimer des catégories.
+
+🏆 Système de points et classement
+Chaque utilisateur gagne des points en fonction de ses bonnes réponses.
+Un leaderboard (classement) affiche les trois meilleurs joueurs sur la page d’accueil, suivi du classement général.
+
+🎨 Interface dynamique avec EJS et JavaScript
+Les vues (EJS) affichent dynamiquement les données envoyées par les contrôleurs, avec des composants interactifs :
+carrousel de quiz, filtres de recherche, formulaires dynamiques, et affichage des résultats.
+
+💾 Persistance locale en JSON
+Les données (utilisateurs, quiz, catégories, etc.) sont stockées sous forme de fichiers JSON dans le dossier data/.
+Cela permet de gérer le projet sans base de données externe.
 
 ---
 
